@@ -1,0 +1,82 @@
+<!DOCTYPE html5>
+<html>
+
+<head>
+    <title>GeoD</title>
+    <!-- Authors: Sihwa Park, Cindy Kang, Yichen Li -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css?family=Barlow" rel="stylesheet">
+    <link rel="stylesheet" href="script/style.css" type="text/css">
+    <script src="script/script.js"></script>
+    <script src="google-api-request"
+    async defer></script>
+</head>
+
+<body>
+    <div id="infoModal" class="modal">
+    <!-- Modal content -->
+        <div class="modal-content">
+            <span id='close-modal' class="close">&times;</span>
+            <!-- <p>
+                <b>Description</b>
+            </p> -->
+            <p> 
+                <b>Authors</b><br>
+                Dan C. Baciu, Sihwa Park, Cindy Kang, Yichen Li, Junqing Sun, Akshay Sunku, Zhenghao Zao, Sunit Pravin Kajarekar, Su Burtner, WE1S Interpretation Lab.<br>
+            </p>
+            <p> 
+                <b>License</b><br>
+                This is a prototype to be used internally within <a href='https://we1s.ucsb.edu/' target='_blank'>WE1S(WhatEvery1Says)</a>. We will make it available under a Creative Commons License (CC-BY-NC) upon publication, and no later than August 2020. 
+            </p>
+            <p>
+                <b>Contributions</b><br>
+                Dan C. Baciu: data science concept, design concept, supervision (<a href='https://orcid.org/0000-0002-0043-5616' target='_blank'>orcid</a>)<br>
+                Sihwa Park: data visualization leader, interface design (<a href='https://orcid.org/0000-0001-9620-8903' target='_blank'>orcid</a>)<br>
+                Cindy Kang: interface design (<a href='https://orcid.org/0000-0002-6781-5656' target='_blank'>orcid</a>)<br>
+                Yichen Li: initial interface design, GIS<br>
+                Junqing Sun: data preprocessing and testing<br>
+                Akshay Sunku: GIS, initial interface design<br>
+                Zhenghao Zao: GIS, initial interface design<br>
+                Sunit Pravin Kajarekar: GIS, intial interface design<br>
+                Su Burtner: preliminary work<br>
+            </p>
+        </div>
+    </div>
+
+    <div id="windows">
+        <div class="headersection">
+            <p id="header">GeoD</p>
+            <img id="logo" src="images/we1s_logo.png"></img>
+
+            <span id="info"> &#9432;</span>
+            <img id="setting" src="images/gear-32x32.png"></img>
+        </div>
+        <div id="settingWindow">
+            <span id='close-setting' class="close">&times;</span>
+            <input type="checkbox" name="radius" checked onchange="toggleRadius()">Weighted radius <br>
+            <input type="checkbox" name="topic" checked onchange="toggleCircles()">Circles of a topic<br>
+            <input type="checkbox" name="line" checked onchange="toggleLines()">Lines to publishers<br>
+            <input type="checkbox" name="hetmap" checked onchange="toggleHeatmap()">Heatmap of all topics<br>
+        </div>
+        <div class="inputcontainer">
+            Topic: <input type="number" id="topicInput" value="1" min="1" style="width:40px">
+            <button id="submit" onclick="submit()">Submit</button>
+            <button id="previous" onclick="previous()">Prev</button>
+            <button id="next" onclick="next()">Next</button>
+        </div>
+        <span class="sectiontitle">Geocoded Titles<div id='total'></div></span>
+        <div id="window1">
+            <ul id= "wikititles" class="wikititles"></ul>
+        </div>
+        <div width="100%" height="5%"></div>
+        <span class="sectiontitle">Topic Keywords</span>
+        <div id="window2">
+            <ul id= "keyWords" class="wikititles"></ul>
+        </div>
+    </div>
+    <div id="map"></div>
+</body>
+
+</html>

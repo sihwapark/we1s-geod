@@ -1,0 +1,238 @@
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: "Verdana";
+    font-size: 11pt;
+    background: #696969;
+}
+
+#map {
+    height: 100%;
+    width: calc(100% - 270px);
+    float: left;
+}
+
+/* The Modal (background) */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    padding-top: 100px;
+    left:0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4); 
+}
+
+/* Modal Content */
+.modal-content {
+    color: black;
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    font-size: 12px;
+}
+
+/* The Close Button */
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: relative;
+    top: -15px;
+    right: -10px;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#windows {
+    height: 100%;
+    width: calc(270px - 20px);
+    /*background:#035071;*/
+    color:#d3d3d3;
+    float: right;
+    margin: 0 10px;
+}
+
+.headersection {
+    width: calc(100% - 6px);
+    height: 100px;
+    margin: 20px 3px 0px 3px;
+    line-height: 100px;
+}
+
+#logo { 
+    height: 55px;
+    text-align: right;
+    display: inline;
+}
+
+#header {
+    color: aliceblue;
+    text-align: right;
+    display: inline;
+    font-size: 55px;
+    font-family: Roboto, Helvetica, sans-serif;
+}
+
+#info{
+    font-size: 20px;
+    display: inline;
+}
+
+#setting{
+    display: inline;
+    filter: invert(80%);
+    width: 18px;
+    position: relative;
+    bottom: -1px;
+}
+
+#info:hover{
+    color:white;
+    cursor: pointer;
+}
+
+#setting:hover{
+    font-size: 24px;
+    cursor: pointer;
+    filter: invert(100%);
+}
+
+#settingWindow {
+    height: 80px;
+    background:#023e58;
+    overflow-y: scroll;
+    border-style: 1px solid #696969;
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    top:15px;
+    padding: 15px;
+    font-size: 12px;
+    display: none;
+}
+
+.inputcontainer {
+  width: 100%;
+  height: 30px;
+  background:#696969;
+  color:#d3d3d3;
+  font-size:12pt;
+  border-style: 2px solid #696969;
+  border-radius: 5px;
+  display: block;
+  line-height: 30px;
+}
+
+.inputcontainer button {
+    width: 40px;
+    height: 22px;
+    padding: 0;
+}
+
+.inputcontainer button#submit {
+    width: 50px;
+}
+
+#window1 {
+    height: calc((100% - 240px)/2 - 20px);
+    background:#023e58;
+    overflow-y: scroll;
+    border-style: 1px solid #696969;
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    padding: 10px 15px;
+}
+
+#window2 {
+    height: calc((100% - 240px)/2 - 20px);
+    background:#023e58;
+    overflow-y: scroll;
+    border-style: 1px solid #696969;
+    border-top-width: 2px;
+    border-radius: 5px;
+    padding: 10px 15px;
+}
+
+#window1 ul{
+    list-style-type: decimal;
+    list-style-position: inside;
+    margin: 0;
+    padding: 0;
+}
+
+#window1 li{
+    padding: 5px 0;
+}
+
+#window2 ul{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#window2 li{
+    padding: 5px 0;
+}
+
+.sectiontitle {
+    height: 30px;
+    width: 100%;
+    display: inline-flex;
+    align-items: flex-end;
+    margin-bottom:10px;
+}
+
+.wikititles {
+    color:#c6d7df;
+    font-size: 12px;
+    word-break: break-all;
+    word-wrap: break-word;
+}
+
+.wikititles .item {
+    background-color: #023e58;
+}
+
+.wikititles .item:hover {
+    cursor: pointer;
+    background-color: #023e90;   
+}
+
+.wikititles .item-active  {
+    cursor: pointer;
+    background-color: #a80707;   
+}
+
+.wikititles .item-active:hover  {
+    cursor: pointer;
+    background-color: #023e90;   
+}
+
+.legend {
+    background: #fff;
+    padding: 10px;
+    margin: 10px;
+    border: 0;
+}
+
+.legend h3 {
+    margin-top: 0;
+}
+
+.legend img {
+    vertical-align: middle;
+    height: 20px;
+}

@@ -472,7 +472,7 @@ function hideLines(topic) {
     }
 }
 
-function drawagain(selectedTopic){
+function drawagain(selectedTopic) {
     selectedTopic = Number(selectedTopic);
     
     if(lastTopic == selectedTopic) return;
@@ -557,6 +557,74 @@ function getParams(url) {
     return params;
 }
 
+function saveMapToImage(topicNum, mapOnly = true, w, h, xOffset, yOffset) {
+    if(mapOnly) {
+        map.setOptions({disableDefaultUI: true});
+        document.getElementById('legend').hidden = true;
+    }
+
+    var wait = (lastTopic == topicNum)? 1 : 500;
+    document.getElementById("topicInput").value = topicNum;
+    drawagain(topicNum);
+
+    setTimeout(function() {
+        var mapDiv = document.getElementById('map');
+        var options = {
+            useCORS: true
+        }
+
+        if(typeof w == 'undefined' && typeof h == 'undefined') {
+            // if width or height is an odd number, 
+            // the image  has unwanted vertical or horizontal lines in Firefox and Safari,
+            w = mapDiv.clientWidth;
+            h = mapDiv.clientHeight;
+        }
+
+        if(w % 2 == 1) w -= 1;
+        if(h % 2 == 1) h -= 1;
+
+        var mapCenterX = mapDiv.clientWidth * 0.5;
+        var mapCenterY = mapDiv.clientHeight * 0.5;
+        
+        if(typeof xOffset == 'undefined') xOffset = mapCenterX - w * 0.5;
+        if(typeof yOffset == 'undefined') yOffset = mapCenterY - h * 0.5;
+        
+        options.x = xOffset;
+        options.y = yOffset;
+        options.width = w;
+        options.height = h;
+        
+        html2canvas(mapDiv, options).then(function(canvas) {
+            var imgURL = canvas.toDataURL();
+            downloadImage(imgURL, 'GeoD_Topic' + topicNum + '.png');
+        });
+    }, wait);
+
+    setTimeout(function() {
+        if(mapOnly) {
+            map.setOptions({disableDefaultUI: false});
+            document.getElementById('legend').hidden = false;
+        }
+    }, wait + 100);
+}
+
+function downloadImage(URL, filename) {
+    var a = document.createElement('a');
+
+    if (typeof a.download == 'string') {
+        a.href = URL;
+        a.download = filename;
+
+        document.body.appendChild(a);
+
+        a.click();
+
+        document.body.removeChild(a);
+    } else {
+        window.open(URL);
+    }
+}
+
 function initMap(){
 
     params = getParams(window.location.href);
@@ -599,7 +667,7 @@ function initMap(){
     });
 
     var legend = document.createElement('div');
-    legend.className ='legend';
+    legend.id = 'legend'
     var div = document.createElement('div');
     div.innerHTML = '<img src="heatmap.gif"> All Topics<br><br><img src="dataPoint.gif">Title Points';
     legend.appendChild(div);

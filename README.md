@@ -63,3 +63,20 @@ npm start
 ### 4. Openning Application
 
 Open a browser and enter http://localhost:5000/.
+
+
+
+## Dependencies
+
+### JavaScript
+
+* [Google Maps JS API](https://developers.google.com/maps/documentation/javascript/tutorial)
+
+* [html2canvas](http://html2canvas.hertzen.com/)
+* [jquery](https://code.jquery.com/)
+
+### Node.js
+
+* [dotenv](https://www.npmjs.com/package/dotenv)
+* [express](https://www.npmjs.com/package/express)
+* [https](https://www.npmjs.com/package/https)

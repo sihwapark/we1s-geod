@@ -221,18 +221,18 @@ body {
     background-color: #023e90;   
 }
 
-.legend {
+#legend {
     background: #fff;
     padding: 10px;
     margin: 10px;
     border: 0;
 }
 
-.legend h3 {
+#legend h3 {
     margin-top: 0;
 }
 
-.legend img {
+#legend img {
     vertical-align: middle;
     height: 20px;
 }

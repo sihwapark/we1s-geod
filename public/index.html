@@ -24,7 +24,7 @@
             </p> -->
             <p> 
                 <b>Authors</b><br>
-                Dan C. Baciu, Sihwa Park, Cindy Kang, Yichen Li, Junqing Sun, Akshay Sunku, Zhenghao Zao, Sunit Pravin Kajarekar, Su Burtner, WE1S Interpretation Lab.<br>
+                Dan C. Baciu, Sihwa Park, Xindi Kang, Yichen Li, Junqing Sun, Akshay Sunku, Zhenghao Zao, Sunit Pravin Kajarekar, Su Burtner, WE1S Interpretation Lab.<br>
             </p>
             <p> 
                 <b>License</b><br>
@@ -66,12 +66,17 @@
             <button id="previous" onclick="previous()">Prev</button>
             <button id="next" onclick="next()">Next</button>
         </div>
-        <span class="sectiontitle">Geocoded Titles<div id='total'></div></span>
+        <div class="sectiontitle">Geocoded Titles
+            <span class="tooltip">Geocoded Titles are place names mentioned in a particular topic, represented by the red circles <img src="dataPoint.gif" width="20px" top> on the map. Click on a title on the <div id="tooltipSideBar" onmouseover="highLight()" onmouseout="highLightOff()">sidebar</div> to see the location on map. Click again to hide location.</span>
+            <div id='total'></div>
+          </div>
         <div id="window1">
             <ul id= "wikititles" class="wikititles"></ul>
         </div>
         <div width="100%" height="5%"></div>
-        <span class="sectiontitle">Topic Keywords</span>
+        <div class="sectiontitle">Topic Keywords
+            <span class="tooltip">Topic Keywords are shown below to describe the content of each topic. </span>
+        </div>
         <div id="window2">
             <ul id= "keyWords" class="wikititles"></ul>
         </div>

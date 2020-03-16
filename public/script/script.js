@@ -625,6 +625,14 @@ function downloadImage(URL, filename) {
     }
 }
 
+function highLight(){
+    document.getElementById("window1").style.borderColor = "yellow";
+}
+
+function highLightOff(){
+    document.getElementById("window1").style.borderColor = "#023e58";
+}
+
 function initMap(){
 
     params = getParams(window.location.href);
@@ -669,6 +677,7 @@ function initMap(){
     var legend = document.createElement('div');
     legend.id = 'legend'
     var div = document.createElement('div');
+    // div.innerHTML = '<img src="heatmap.gif"> <div class="tooltip">All Topics<div class="tooltipText">Some Tip</div></div><br><br><img src="dataPoint.gif">Title Points';
     div.innerHTML = '<img src="heatmap.gif"> All Topics<br><br><img src="dataPoint.gif">Title Points';
     legend.appendChild(div);
     map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(legend);

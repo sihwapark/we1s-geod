@@ -36,7 +36,9 @@ body {
     padding: 20px;
     border: 1px solid #888;
     width: 80%;
+    height: 80%;
     font-size: 12px;
+    overflow: scroll;
 }
 
 /* The Close Button */

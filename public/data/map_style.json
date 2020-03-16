@@ -54,7 +54,7 @@
       "featureType": "administrative.neighborhood",
       "stylers": [
         {
-          "visibility": "off"
+          "visibility": "on"
         }
       ]
     },

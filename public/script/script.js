@@ -2,6 +2,7 @@ var map;
 var cityArray = [];
 var keyArray = [];
 var listWiki = ["",];
+var listPublisher = [];
 var listKey = [];
 var lastTopic = -1;
 var jsonData;
@@ -22,6 +23,8 @@ var lineVisible = true;
 var maxStrokeWeight = 9;
 
 var params = {};
+var dataFolder = "" // if it is using node.js version, it should be "" otherwise "data/"
+var imageFolder = "" // if it is using node.js version, it should be "" otherwise "images/"
 
 // heatmap color scheme based on: http://colorbrewer2.org/?type=sequential&scheme=YlGn&n=9
 var heatmapGradient = ['rgba(173,221,142,0)','rgb(120,198,121)','rgb(65,171,93)','rgb(35,132,67)','rgb(0,104,55)','rgb(0,69,41)'];
@@ -144,6 +147,7 @@ function compareCount(wikifirst, wikisecond) {
 function addDataLayerForTopic(num) {
 
     var wiki = "";
+    var pub = "";
     var keyWord = "";
     cityArray[num] = [];
     var maxCount = -1;
@@ -191,14 +195,24 @@ function addDataLayerForTopic(num) {
                     var latEnd = lines[i].Linecoord[0];
                     var lonEnd = lines[i].Linecoord[1];
 
-                    if(typeof publishers[name] == 'undefined') {
-                        var coord = {lat: latEnd, lng: lonEnd};
-                        publishers[name] = {coord: coord};
-                        addPublisherCircle(name, coord);
+                    var uniqueID = name + '(' + latEnd + ',' + lonEnd +')';
+                    var coord = {lat: latEnd, lng: lonEnd};
+                    if(typeof publishers[uniqueID] == 'undefined') {
+                        
+                        publishers[uniqueID] = {coord: coord};
+                        addPublisherCircle(uniqueID, coord);
+
+                        // pub += "<li class='item' id='pub-" + num + "-" + indexOfCircle + " onclick='clickForPublisher("+num+","+indexOfCircle + ", this)'>" + name + "("+ count + ")</li>";
+                        pub += "<li class='item'>" + name + "</li>";
                     } else {
-                        //if(publishers[name].coord.lat != latEnd || publishers[name].coord.lng != lonEnd)
-                        //console.log('coordinate is different:', name, publishers[name], latEnd, lonEnd);
-                    }
+
+                        // in some cases, names are the same but coods are different
+                        // so to prevent it, uniqueID combined wiht coord is used.
+                        
+                        if(publishers[uniqueID].coord.lat != latEnd || publishers[uniqueID].coord.lng != lonEnd)
+                            console.log("duplicate:", name, publishers[uniqueID].coord, coord);    
+
+                    }                    
                     
                     var linecount = Number(lines[i].Linecount);
 
@@ -251,7 +265,7 @@ function addDataLayerForTopic(num) {
 
                     gradientLine.push(gradientLineEnd);
 
-                    polylines.push({line:gradientLine, publisher:publishers[name]});
+                    polylines.push({line:gradientLine, publisher:publishers[uniqueID]});
                 }
             }
         }
@@ -264,6 +278,7 @@ function addDataLayerForTopic(num) {
     }
 
     listKey[num] = keyWord;
+    listPublisher[num] = pub;
     listWiki[num] = wiki;
 }
 
@@ -292,7 +307,7 @@ function clickForTitle(num, indexOfCircle, element) {
 
 //To-Do: add loading animation
 function loadData() {
-    fetch('keys.txt')
+    fetch(dataFolder +'keys.txt')
         .then(response => response.text())
         .then((data) => {
             var txtData = data;
@@ -304,7 +319,7 @@ function loadData() {
                 keyArray.push(keywords);
             }
             
-            fetch("Map_Items_Topic_Lines.json")
+            fetch(dataFolder +"Map_Items_Topic_Lines.json")
                 .then(function (data){
                     data.json()
                         .then(function (data) {
@@ -315,6 +330,7 @@ function loadData() {
 
                             addDataLayerForTopic(topicNum);      
                             document.getElementById("wikititles").innerHTML = listWiki[topicNum];
+                            document.getElementById("publishers").innerHTML = listPublisher[topicNum];
                             document.getElementById("keyWords").innerHTML = listKey[topicNum];
                             document.getElementById("total").innerHTML = "(Total: " + cityArray[topicNum].length + ")";
                             lastTopic = topicNum;
@@ -334,7 +350,7 @@ function loadData() {
         });
 }
 
-function addPublisherCircle(name, coord) {
+function addPublisherCircle(id, coord) {
 
     var circle = new google.maps.Circle({
         strokeColor: 'white',
@@ -349,7 +365,7 @@ function addPublisherCircle(name, coord) {
     });
 
     circle.setVisible(lineVisible);
-    publishers[name].circle = circle;
+    publishers[id].circle = circle;
 }
 
 //add circles on the map
@@ -501,6 +517,7 @@ function drawagain(selectedTopic) {
     }
 
     document.getElementById("wikititles").innerHTML = listWiki[selectedTopic];
+    document.getElementById("publishers").innerHTML = listPublisher[selectedTopic];
     document.getElementById("keyWords").innerHTML = listKey[selectedTopic];
     document.getElementById("total").innerHTML = "(Total: " + cityArray[selectedTopic].length + ")";
     lastTopic = selectedTopic;
@@ -654,7 +671,7 @@ function initMap(){
 
     $.ajax({
       dataType: "json",
-      url: "map_style.json",
+      url: dataFolder + "map_style.json",
       success: function(json) {
         var mapType = new google.maps.StyledMapType(json['settings'], {name: 'Styled Map'});
         
@@ -678,7 +695,7 @@ function initMap(){
     legend.id = 'legend'
     var div = document.createElement('div');
     // div.innerHTML = '<img src="heatmap.gif"> <div class="tooltip">All Topics<div class="tooltipText">Some Tip</div></div><br><br><img src="dataPoint.gif">Title Points';
-    div.innerHTML = '<img src="heatmap.gif"> All Topics<br><br><img src="dataPoint.gif">Title Points';
+    div.innerHTML = '<img src="' + imageFolder + 'heatmap.gif"> All Topics<br><br><img src="' + imageFolder + 'dataPoint.gif">Title Points';
     legend.appendChild(div);
     map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(legend);
 
@@ -697,6 +714,7 @@ function initMap(){
 
     setting.onclick = function() {
         settingWindow.style.display = "block";
+        document.getElementById("windows").className = "active";
     }
 
     closeModal.onclick = function() {
@@ -705,6 +723,7 @@ function initMap(){
 
     closeSetting.onclick = function() {
         settingWindow.style.display = "none";
+        document.getElementById("windows").className = "";
     }
 
     window.onclick = function(event) {

@@ -17,7 +17,7 @@
 <body>
     <div id="infoModal" class="modal">
     <!-- Modal content -->
-        <div class="modal-content">
+        <div class="modal-content scrollbar">
             <span id='close-modal' class="close">&times;</span>
             <p>
                 <h2>How to Read and Use GeoD</h2>
@@ -81,7 +81,7 @@
                 <b>Contributions</b><br>
                 Dan C. Baciu: data science concept, design concept, supervision (<a href='https://orcid.org/0000-0002-0043-5616' target='_blank'>orcid</a>)<br>
                 Sihwa Park: design and development lead, data visualization, interface design (<a href='https://orcid.org/0000-0001-9620-8903' target='_blank'>orcid</a>)<br>
-                Cindy Kang: initial visualization, interface design (<a href='https://orcid.org/0000-0002-6781-5656' target='_blank'>orcid</a>)<br>
+                Xindy Kang: initial visualization, interface design (<a href='https://orcid.org/0000-0002-6781-5656' target='_blank'>orcid</a>)<br>
                 Yichen Li: initial interface design, GIS<br>
                 Junqing Sun: data preprocessing and testing<br>
                 Akshay Sunku: GIS, initial interface design<br>
@@ -114,17 +114,22 @@
             <button id="next" onclick="next()">Next</button>
         </div>
         <div class="sectiontitle">Geocoded Titles
-            <span class="tooltip">Geocoded Titles are place names mentioned in a particular topic, represented by the red circles <img src="dataPoint.gif" width="20px" top> on the map. Click on a title on the <div id="tooltipSideBar" onmouseover="highLight()" onmouseout="highLightOff()">sidebar</div> to see the location on map. Click again to hide location.</span>
+            <span class="tooltip">Geocoded Titles are place names mentioned in a particular topic, represented by the red circles <img src="images/dataPoint.gif" width="20px" top> on the map. Click on a title on the <div id="tooltipSideBar" onmouseover="highLight()" onmouseout="highLightOff()">sidebar</div> to see the location on map. Click again to hide location.</span>
             <div id='total'></div>
           </div>
-        <div id="window1">
+        <div id="window1" class="scrollbar">
             <ul id= "wikititles" class="wikititles"></ul>
         </div>
-        <div width="100%" height="5%"></div>
+        <div class="sectiontitle">Publishers
+            <span class="tooltip">Publishers are publisher names represented by the white circles. </span>
+        </div>
+        <div id="window2" class="scrollbar">
+            <ul id= "publishers" class="publishers"></ul>
+        </div>
         <div class="sectiontitle">Topic Keywords
             <span class="tooltip">Topic Keywords are shown below to describe the content of each topic. </span>
         </div>
-        <div id="window2">
+        <div id="window3" class="scrollbar">
             <ul id= "keyWords" class="wikititles"></ul>
         </div>
     </div>

@@ -62,10 +62,13 @@ body {
 #windows {
     height: 100%;
     width: calc(270px - 20px);
-    /*background:#035071;*/
     color:#d3d3d3;
     float: right;
     margin: 0 10px;
+}
+
+#windows.active {
+    height: calc(100% - 110px);
 }
 
 .headersection {
@@ -116,7 +119,7 @@ body {
 #settingWindow {
     height: 80px;
     background:#023e58;
-    overflow-y: scroll;
+    overflow-y: hidden;
     border-style: 1px solid #696969;
     border-bottom-width: 2px;
     border-radius: 5px;
@@ -162,8 +165,8 @@ body {
 }
 
 #window1 {
-    height: calc((100% - 240px)/2 - 20px);
-    background:#023e58;
+    height: calc((100% - 270px)/3 - 25px + 50px);
+    background: #023e58;
     overflow-y: scroll;
     border-style: solid;
     border-width: 2px;
@@ -174,8 +177,23 @@ body {
 }
 
 #window2 {
-    height: calc((100% - 240px)/2 - 20px);
-    background:#023e58;
+    height: calc((100% - 270px)/3 - 25px + 50px);
+    background: #023e58;
+    overflow-y: scroll;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #023e58;
+    border-top-width: 2px;
+    border-radius: 5px;
+    padding: 10px 15px;
+
+    color:#c6d7df;
+    font-size: 12px;
+}
+
+#window3 {
+    height: calc((100% - 270px)/3 - 25px - 100px);
+    background: #023e58;
     overflow-y: scroll;
     border-style: solid;
     border-width: 2px;
@@ -196,8 +214,10 @@ body {
     padding: 5px 0;
 }
 
+
 #window2 ul{
-    list-style-type: none;
+    list-style-type: decimal;
+    list-style-position: inside;
     margin: 0;
     padding: 0;
 }
@@ -206,10 +226,37 @@ body {
     padding: 5px 0;
 }
 
+#window3 ul{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#window3 li{
+    padding: 5px 0;
+}
+
+.scrollbar {}
+
+.scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  display: none;
+}
+ 
+.scrollbar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+
 .sectiontitle {
     position: relative;
-    /* display: inline-block; */
-
     height: 30px;
     width: 100%;
     display: inline-flex;
@@ -218,7 +265,7 @@ body {
 }
   
 .sectiontitle .tooltip {
-    visibility: hidden;
+    visibility: visible;
     width: calc(270px - 50px);
     background-color: #555;
     color: #fff;

@@ -265,7 +265,7 @@ body {
 }
   
 .sectiontitle .tooltip {
-    visibility: visible;
+    visibility: hidden;
     width: calc(270px - 50px);
     background-color: #555;
     color: #fff;
@@ -313,6 +313,10 @@ body {
     cursor: pointer;
     background-color: #023e90;   
 }
+
+#total { 
+    margin-left: 3px;
+ }
 
 #legend {
     background: #fff;

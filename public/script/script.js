@@ -137,13 +137,6 @@ function getDataPointsForAllTopics() {
     //map.panTo(bounds.getCenter());
 }
 
-function compareCount(wikifirst, wikisecond) {
-    if(Number(wikifirst.Count) < Number(wikisecond.Count)) return 1;
-    else if(Number(wikifirst.Count) > Number(wikisecond.Count)) return -1;
-
-    return 0;
-}
-
 function addDataLayerForTopic(num) {
 
     var wiki = "";
@@ -164,8 +157,11 @@ function addDataLayerForTopic(num) {
         }
     }
 
-    topic.Wikidata.sort(compareCount);
+    topic.Wikidata.sort(function(wikifirst, wikisecond) {
+        return Number(wikisecond.Count) - Number(wikifirst.Count);
+    });
 
+    var pubList = [];
     for (var j = 0; j < topic.Wikidata.length; j++) {
         var name = topic.Wikidata[j].Title;
         var count = Number(topic.Wikidata[j].Count);
@@ -178,43 +174,47 @@ function addDataLayerForTopic(num) {
             addDataPointCircle(lat, lon, clr, strk_opct, fill_opct, radius, name, num, count, maxCount);
             
             var indexOfCircle = cityArray[num].length - 1;
-            wiki += "<li class='item' id=" + num + "-" + indexOfCircle + " onclick='clickForTitle("+num+","+indexOfCircle + ", this)'>" + name + "("+ count + ")</li>";
+            wiki += "<li class='item' id=" + num + "-" + indexOfCircle + " onclick='clickForTitle("+num+","+indexOfCircle + ", this)'>" + name + " ("+ count + ")</li>";
 
             var lines = topic.Wikidata[j].Lines;
+            var totalLines = 0;
+            if(typeof lines != 'undefined' && lines.length > 0) {
 
-            if(typeof lines != 'undefined') {
                 var lineCoordinate = [
                     {lat:lat, lng:lon},
                     {lat:0, lng:0}
                 ];
                
                 var startLatLng = new google.maps.LatLng(lineCoordinate[0].lat,lineCoordinate[0].lng);
-               
+                
                 for(var i = 0; i < lines.length; i++) {
-                    var name = lines[i].Line;
+                    var pubName = lines[i].Line;
                     var latEnd = lines[i].Linecoord[0];
                     var lonEnd = lines[i].Linecoord[1];
-
-                    var uniqueID = name + '(' + latEnd + ',' + lonEnd +')';
+                    var linecount = Number(lines[i].Linecount);
+                    totalLines += linecount;
+                    
+                    // in some cases, names are the same but coods are different
+                    // so to prevent it, uniqueID combined wiht coord is used.
+                    var uniqueID = pubName + '(' + latEnd + ',' + lonEnd +')';
                     var coord = {lat: latEnd, lng: lonEnd};
                     if(typeof publishers[uniqueID] == 'undefined') {
                         
-                        publishers[uniqueID] = {coord: coord};
+                        publishers[uniqueID] = {name: pubName, coord: coord, counts:[]};
+                        publishers[uniqueID].counts[num] = linecount;
                         addPublisherCircle(uniqueID, coord);
 
-                        // pub += "<li class='item' id='pub-" + num + "-" + indexOfCircle + " onclick='clickForPublisher("+num+","+indexOfCircle + ", this)'>" + name + "("+ count + ")</li>";
-                        pub += "<li class='item'>" + name + "</li>";
-                    } else {
+                        pubList.push(publishers[uniqueID]);
+                    } else {    
+                        if(typeof publishers[uniqueID].counts[num] != 'undefined')
+                            publishers[uniqueID].counts[num] += linecount;
+                        else {
+                            publishers[uniqueID].counts[num] = linecount;
+                            pubList.push(publishers[uniqueID]);
+                        }
 
-                        // in some cases, names are the same but coods are different
-                        // so to prevent it, uniqueID combined wiht coord is used.
-                        
-                        if(publishers[uniqueID].coord.lat != latEnd || publishers[uniqueID].coord.lng != lonEnd)
-                            console.log("duplicate:", name, publishers[uniqueID].coord, coord);    
-
-                    }                    
-                    
-                    var linecount = Number(lines[i].Linecount);
+                        // console.log(publishers[uniqueID]);
+                    }
 
                     lineCoordinate[1].lat = latEnd;
                     lineCoordinate[1].lng = lonEnd;
@@ -267,7 +267,9 @@ function addDataLayerForTopic(num) {
 
                     polylines.push({line:gradientLine, publisher:publishers[uniqueID]});
                 }
-            }
+            } //else console.log("lines are undefined");
+
+            //console.log(name, count, totalLines);
         }
     }
 
@@ -276,6 +278,12 @@ function addDataLayerForTopic(num) {
     for (var i = 0; i < 20; i++){
         keyWord += "<li>" + keyArray[num - 1][i]+ "</li>";
     }
+
+    pubList.sort(function(pubA, pubB) { return pubB.counts[num] - pubA.counts[num]});
+
+    pubList.forEach(function(p) {
+        pub += "<li class='item'>" + p.name + " (" + p.counts[num] + ") </li>";
+    });
 
     listKey[num] = keyWord;
     listPublisher[num] = pub;

@@ -23,6 +23,8 @@ var lineVisible = true;
 var maxStrokeWeight = 9;
 var selectedPublishers = [];
 
+var CustomPopup;
+
 var params = {};
 var dataFolder = "" // if it is using node.js version, it should be "" otherwise "data/"
 var imageFolder = "" // if it is using node.js version, it should be "" otherwise "images/"
@@ -341,7 +343,6 @@ function clickForPublisher(num, id, element) {
         });
 
         selectedPublishers.forEach(function(pub) {
-            console.log(pub);
             publishers[pub.id].polylines[num].forEach(function(polylines) { 
                 polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
             });
@@ -451,6 +452,16 @@ function addDataPointCircle(lat, lon, clr, strk_opct, fill_opct, radius, name, t
     var infowindow = new google.maps.InfoWindow({
         content: contentString
     });
+
+    // <div id="content">
+    //   Hello world!
+    // </div>
+    // var div = document.createElement('div');
+    // var div.innerHTML = contentString;
+    // var infowindow = new CustomPopup(
+    //   new google.maps.LatLng(-33.866, 151.196),
+    //   div);
+    // infowindow.setMap(map);
 
     var marker = new google.maps.Marker({
         position: coord,
@@ -737,6 +748,8 @@ function initMap(){
         center: center,
         zoom: 3
     });
+    
+    CustomPopup = createCustomPopupClass();
 
     $.ajax({
       dataType: "json",
@@ -807,4 +820,75 @@ function initMap(){
     }
 
     document.getElementById('deselectPublishers').onclick = deselectAllPublishers;       
+}
+
+/* CustomPopup code example from https://developers.google.com/maps/documentation/javascript/examples/overlay-popup */
+/**
+ * Returns the Popup class.
+ *
+ * Unfortunately, the Popup class can only be defined after
+ * google.maps.OverlayView is defined, when the Maps API is loaded.
+ * This function should be called by initMap.
+ */
+function createCustomPopupClass() {
+  /**
+   * A customized popup on the map.
+   * @param {!google.maps.LatLng} position
+   * @param {!Element} content The bubble div.
+   * @constructor
+   * @extends {google.maps.OverlayView}
+   */
+    function CustomPopup(position, content) {
+        this.position = position;
+
+        content.classList.add('popup-bubble');
+
+        // This zero-height div is positioned at the bottom of the bubble.
+        var bubbleAnchor = document.createElement('div');
+        bubbleAnchor.classList.add('popup-bubble-anchor');
+        bubbleAnchor.appendChild(content);
+
+        // This zero-height div is positioned at the bottom of the tip.
+        this.containerDiv = document.createElement('div');
+        this.containerDiv.classList.add('popup-container');
+        this.containerDiv.appendChild(bubbleAnchor);
+
+        // Optionally stop clicks, etc., from bubbling up to the map.
+        google.maps.OverlayView.preventMapHitsAndGesturesFrom(this.containerDiv);
+    }
+    // ES5 magic to extend google.maps.OverlayView.
+    CustomPopup.prototype = Object.create(google.maps.OverlayView.prototype);
+
+    /** Called when the popup is added to the map. */
+    CustomPopup.prototype.onAdd = function() {
+        this.getPanes().floatPane.appendChild(this.containerDiv);
+    };
+
+    /** Called when the popup is removed from the map. */
+    CustomPopup.prototype.onRemove = function() {
+        if (this.containerDiv.parentElement) {
+            this.containerDiv.parentElement.removeChild(this.containerDiv);
+        }
+    };
+
+    /** Called each frame when the popup needs to draw itself. */
+    CustomPopup.prototype.draw = function() {
+        var divPosition = this.getProjection().fromLatLngToDivPixel(this.position);
+
+        // Hide the popup when it is far out of view.
+        var display =
+        Math.abs(divPosition.x) < 4000 && Math.abs(divPosition.y) < 4000 ?
+        'block' :
+        'none';
+
+        if (display === 'block') {
+            this.containerDiv.style.left = divPosition.x + 'px';
+            this.containerDiv.style.top = divPosition.y + 'px';
+        }
+        if (this.containerDiv.style.display !== display) {
+            this.containerDiv.style.display = display;
+        }
+    };
+
+    return CustomPopup;
 }

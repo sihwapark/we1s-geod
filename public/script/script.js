@@ -21,6 +21,7 @@ var linesToPublishers = [];
 var circleVisible = true;
 var lineVisible = true;
 var maxStrokeWeight = 9;
+var selectedPublishers = [];
 
 var params = {};
 var dataFolder = "" // if it is using node.js version, it should be "" otherwise "data/"
@@ -28,6 +29,8 @@ var imageFolder = "" // if it is using node.js version, it should be "" otherwis
 
 // heatmap color scheme based on: http://colorbrewer2.org/?type=sequential&scheme=YlGn&n=9
 var heatmapGradient = ['rgba(173,221,142,0)','rgb(120,198,121)','rgb(65,171,93)','rgb(35,132,67)','rgb(0,104,55)','rgb(0,69,41)'];
+var lineGradient = ['rgb(255, 200, 0)', 'rgb(255, 96, 96)', 'rgb(255, 255, 255)'];
+var lineOpacity = [0.15, 0.2, 0.2];
 
 function initInput() {
     var input = document.getElementById("topicInput");
@@ -174,7 +177,7 @@ function addDataLayerForTopic(num) {
             addDataPointCircle(lat, lon, clr, strk_opct, fill_opct, radius, name, num, count, maxCount);
             
             var indexOfCircle = cityArray[num].length - 1;
-            wiki += "<li class='item' id=" + num + "-" + indexOfCircle + " onclick='clickForTitle("+num+","+indexOfCircle + ", this)'>" + name + " ("+ count + ")</li>";
+            wiki += "<li class='item' id=" + num + "-" + indexOfCircle + " onclick='clickForTitle(" + num + "," + indexOfCircle + ", this)'>" + name + " (" + count + ")</li>";
 
             var lines = topic.Wikidata[j].Lines;
             var totalLines = 0;
@@ -200,7 +203,7 @@ function addDataLayerForTopic(num) {
                     var coord = {lat: latEnd, lng: lonEnd};
                     if(typeof publishers[uniqueID] == 'undefined') {
                         
-                        publishers[uniqueID] = {name: pubName, coord: coord, counts:[]};
+                        publishers[uniqueID] = {id: uniqueID, name: pubName, coord: coord, counts:[], polylines:[]};
                         publishers[uniqueID].counts[num] = linecount;
                         addPublisherCircle(uniqueID, coord);
 
@@ -226,8 +229,8 @@ function addDataLayerForTopic(num) {
                     var mainPolyline = new google.maps.Polyline({
                             path: lineCoordinate,
                             geodesic: true,
-                            strokeColor: 'rgb(255, 200, 0)',
-                            strokeOpacity: 0.15,
+                            strokeColor: lineGradient[0] ,
+                            strokeOpacity: lineOpacity[0],
                             strokeWeight: Math.min(linecount, maxStrokeWeight)
                     });
                     mainPolyline.setVisible(lineVisible);
@@ -240,8 +243,8 @@ function addDataLayerForTopic(num) {
                     var gradientLineStart = new google.maps.Polyline({
                         path: [startLatLng, interpolated],
                         geodesic: true,
-                        strokeColor: 'rgb(255, 96, 96)',
-                        strokeOpacity: 0.2,
+                        strokeColor: lineGradient[1],
+                        strokeOpacity: lineOpacity[1],
                         strokeWeight: Math.min(linecount, maxStrokeWeight),
                     });
 
@@ -255,8 +258,8 @@ function addDataLayerForTopic(num) {
                     var gradientLineEnd = new google.maps.Polyline({
                         path: [interpolated, endLatLng],
                         geodesic: true,
-                        strokeColor: 'rgb(255, 255, 255)',
-                        strokeOpacity: 0.2,
+                        strokeColor: lineGradient[2],
+                        strokeOpacity: lineOpacity[2],
                         strokeWeight: Math.min(linecount, maxStrokeWeight),
                     });
 
@@ -266,6 +269,10 @@ function addDataLayerForTopic(num) {
                     gradientLine.push(gradientLineEnd);
 
                     polylines.push({line:gradientLine, publisher:publishers[uniqueID]});
+
+                    if(typeof publishers[uniqueID].polylines[num] == 'undefined')
+                        publishers[uniqueID].polylines[num] = [];
+                    publishers[uniqueID].polylines[num].push({line: gradientLine});
                 }
             } //else console.log("lines are undefined");
 
@@ -282,12 +289,66 @@ function addDataLayerForTopic(num) {
     pubList.sort(function(pubA, pubB) { return pubB.counts[num] - pubA.counts[num]});
 
     pubList.forEach(function(p) {
-        pub += "<li class='item'>" + p.name + " (" + p.counts[num] + ") </li>";
+        pub += "<li class='item' onclick=\"clickForPublisher(" + num + ",\'" + p.id + "\', this)\">" + p.name + " (" + p.counts[num] + ") </li>";
+
+        // wiki += "<li class='item' id=" + num + "-" + indexOfCircle + " onclick='clickForTitle("+num+","+indexOfCircle + ", this)'>" + name + " ("+ count + ")</li>";
     });
 
     listKey[num] = keyWord;
     listPublisher[num] = pub;
     listWiki[num] = wiki;
+}
+
+function deselectAllPublishers() {
+    
+    selectedPublishers.forEach(function(pub) {
+        $(pub.element).toggleClass('item');
+        $(pub.element).toggleClass('item-active');
+    });
+
+    selectedPublishers = [];
+        
+    linesToPublishers[lastTopic].forEach(function(polylines) {
+        polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
+    });
+
+    document.getElementById('deselectPublishers').style.visibility = 'hidden';
+
+
+}
+
+function clickForPublisher(num, id, element) {
+
+    $(element).toggleClass('item');
+    $(element).toggleClass('item-active');
+
+    let found = selectedPublishers.find(function(pub) { return pub.id == id; });
+    if(typeof found == 'undefined') selectedPublishers.push({id: id, element: element});
+    else {
+        let idx = selectedPublishers.indexOf(found);
+        selectedPublishers.splice(idx, 1);
+    }
+
+    if(selectedPublishers.length == 0) {
+        linesToPublishers[num].forEach(function(polylines) {
+            polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
+        });
+
+        document.getElementById('deselectPublishers').style.visibility = 'hidden';
+    } else {
+        linesToPublishers[num].forEach(function(polylines) {
+            polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: 'rgb(0, 0, 0)', strokeOpacity: 0.1}); });
+        });
+
+        selectedPublishers.forEach(function(pub) {
+            console.log(pub);
+            publishers[pub.id].polylines[num].forEach(function(polylines) { 
+                polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
+            });
+        });
+
+        document.getElementById('deselectPublishers').style.visibility = 'visible';
+    }
 }
 
 function clickForTitle(num, indexOfCircle, element) {
@@ -744,4 +805,6 @@ function initMap(){
         if(event.key == ',') previous();
         else if(event.key == '.') next();
     }
+
+    document.getElementById('deselectPublishers').onclick = deselectAllPublishers;       
 }

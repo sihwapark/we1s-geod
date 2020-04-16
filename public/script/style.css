@@ -289,7 +289,7 @@ body {
 }
 
 .wikititles {
-    color:#c6d7df;
+    color: #c6d7df;
     font-size: 12px;
     word-break: break-all;
     word-wrap: break-word;
@@ -306,12 +306,53 @@ body {
 
 .wikititles .item-active  {
     cursor: pointer;
-    background-color: #a80707;   
+    background-color: #a80707;
 }
 
 .wikititles .item-active:hover  {
     cursor: pointer;
-    background-color: #023e90;   
+    background-color: #023e90;
+}
+
+.publishers {
+    color: #c6d7df;
+    font-size: 12px;
+    word-break: break-all;
+    word-wrap: break-word;
+}
+
+.publishers .item {
+    background-color: #023e58;
+}
+
+.publishers .item:hover {
+    cursor: pointer;
+    background-color: #023e90;
+    color: #c6d7df;
+}
+
+.publishers .item-active  {
+    cursor: pointer;
+    background-color: #c6d7df;
+    color: #000;
+}
+
+.publishers .item-active:hover  {
+    cursor: pointer;
+    background-color: #023e90;
+    color: #c6d7df;
+}
+
+#deselectPublishers {
+    position: absolute;
+    right: 0;
+    font-size: 20px;
+    visibility: hidden;
+}
+
+#deselectPublishers:hover {
+    cursor: pointer;
+    color: #fff;
 }
 
 #total { 
@@ -333,3 +374,4 @@ body {
     vertical-align: middle;
     height: 20px;
 }
+

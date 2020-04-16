@@ -48,7 +48,7 @@ GOOGLE_MAPS_API_KEY=YOUR_API_KEY
 PORT=5000
 ```
 
-### 3. Running Server
+### 4. Running Server
 
 ```
 node app.js
@@ -60,7 +60,7 @@ Or
 npm start
 ```
 
-### 4. Openning Application
+### 5. Openning Application
 
 Open a browser and enter http://localhost:5000/.
 

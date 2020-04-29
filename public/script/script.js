@@ -33,6 +33,7 @@ var imageFolder = "" // if it is using node.js version, it should be "" otherwis
 var heatmapGradient = ['rgba(173,221,142,0)','rgb(120,198,121)','rgb(65,171,93)','rgb(35,132,67)','rgb(0,104,55)','rgb(0,69,41)'];
 var lineGradient = ['rgb(255, 200, 0)', 'rgb(255, 96, 96)', 'rgb(255, 255, 255)'];
 var lineOpacity = [0.15, 0.2, 0.2];
+var lineOpacitySelected = [0.5, 0.3, 0.3];
 
 function initInput() {
     var input = document.getElementById("topicInput");
@@ -80,7 +81,7 @@ function toggleCircles() {
     if(typeof cityArray[lastTopic] != 'undefined') {
         circleVisible = !circleVisible;
         for (var i = 0; i < cityArray[lastTopic].length; i++) {
-            var cityCircle = cityArray[lastTopic][i];
+            var cityCircle = cityArray[lastTopic][i].circle;
             cityCircle.setVisible(circleVisible);
         }
     }
@@ -207,7 +208,7 @@ function addDataLayerForTopic(num) {
                         
                         publishers[uniqueID] = {id: uniqueID, name: pubName, coord: coord, counts:[], polylines:[]};
                         publishers[uniqueID].counts[num] = linecount;
-                        addPublisherCircle(uniqueID, coord);
+                        addPublisherCircle(num, uniqueID, pubName, coord);
 
                         pubList.push(publishers[uniqueID]);
                     } else {    
@@ -220,6 +221,8 @@ function addDataLayerForTopic(num) {
 
                         // console.log(publishers[uniqueID]);
                     }
+
+                    cityArray[num][indexOfCircle].publisherID.push(uniqueID);
 
                     lineCoordinate[1].lat = latEnd;
                     lineCoordinate[1].lng = lonEnd;
@@ -274,7 +277,7 @@ function addDataLayerForTopic(num) {
 
                     if(typeof publishers[uniqueID].polylines[num] == 'undefined')
                         publishers[uniqueID].polylines[num] = [];
-                    publishers[uniqueID].polylines[num].push({line: gradientLine});
+                    publishers[uniqueID].polylines[num].push({line: gradientLine, cityIndex: indexOfCircle});
                 }
             } //else console.log("lines are undefined");
 
@@ -291,7 +294,7 @@ function addDataLayerForTopic(num) {
     pubList.sort(function(pubA, pubB) { return pubB.counts[num] - pubA.counts[num]});
 
     pubList.forEach(function(p) {
-        pub += "<li class='item' onclick=\"clickForPublisher(" + num + ",\'" + p.id + "\', this)\">" + p.name + " (" + p.counts[num] + ") </li>";
+        pub += "<li class='item' id='" + p.id + "' onclick=\"clickForPublisher(" + num + ", this)\">" + p.name + " (" + p.counts[num] + ") </li>";
 
         // wiki += "<li class='item' id=" + num + "-" + indexOfCircle + " onclick='clickForTitle("+num+","+indexOfCircle + ", this)'>" + name + " ("+ count + ")</li>";
     });
@@ -306,6 +309,12 @@ function deselectAllPublishers() {
     selectedPublishers.forEach(function(pub) {
         $(pub.element).toggleClass('item');
         $(pub.element).toggleClass('item-active');
+
+        let circle = publishers[pub.id].circle;
+        var infoWindow = circle.infoWindow;
+        var marker = circle.marker;
+
+        toggleCircle(circle, infoWindow, marker);
     });
 
     selectedPublishers = [];
@@ -319,60 +328,149 @@ function deselectAllPublishers() {
 
 }
 
-function clickForPublisher(num, id, element) {
+function deselectAllTitles() {
+    
+    selectedTitles.forEach(function(title) {
+        $(title.element).toggleClass('item');
+        $(title.element).toggleClass('item-active');
 
-    $(element).toggleClass('item');
-    $(element).toggleClass('item-active');
+        let circle = cityArray[lastTopic][title.id].circle;
+        var infoWindow = circle.infoWindow;
+        var marker = circle.marker;
 
-    let found = selectedPublishers.find(function(pub) { return pub.id == id; });
-    if(typeof found == 'undefined') selectedPublishers.push({id: id, element: element});
-    else {
-        let idx = selectedPublishers.indexOf(found);
-        selectedPublishers.splice(idx, 1);
-    }
+        toggleCircle(circle, infoWindow, marker);
+    });
 
-    if(selectedPublishers.length == 0) {
-        linesToPublishers[num].forEach(function(polylines) {
-            polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
-        });
+    selectedTitles = [];
+        
+    linesToPublishers[lastTopic].forEach(function(polylines) {
+        polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
+    });
 
-        document.getElementById('deselectPublishers').style.visibility = 'hidden';
-    } else {
-        linesToPublishers[num].forEach(function(polylines) {
-            polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: 'rgb(0, 0, 0)', strokeOpacity: 0.1}); });
-        });
-
-        selectedPublishers.forEach(function(pub) {
-            publishers[pub.id].polylines[num].forEach(function(polylines) { 
-                polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
-            });
-        });
-
-        document.getElementById('deselectPublishers').style.visibility = 'visible';
-    }
+    document.getElementById('deselectTitles').style.visibility = 'hidden';
 }
 
-function clickForTitle(num, indexOfCircle, element) {
-    var infoWindow = cityArray[num][indexOfCircle].infoWindow;
-    var marker = cityArray[num][indexOfCircle].marker;
-    $(element).toggleClass('item');
-    $(element).toggleClass('item-active');
-    
-    if(!cityArray[num][indexOfCircle].infoWindowStaying){
+function toggleCircle(circle, infoWindow, marker) {
+
+    if(!circle.infoWindowStaying) {
         marker.setVisible(true);
         infoWindow.open(map, marker);
         infoWindow.setZIndex(++infoWindowZIndex);
-        id=num + "-" + indexOfCircle 
-        cityArray[num][indexOfCircle].infoWindowStaying = true;
-        cityArray[num][indexOfCircle].setOptions({strokeOpacity: 1});
-    }
-    else {
+        circle.infoWindowStaying = true;
+        circle.setOptions({strokeOpacity: 1});
+    } else {
         marker.setVisible(false);
         infoWindow.close();
         infoWindow.setZIndex(0);
-        cityArray[num][indexOfCircle].infoWindowStaying = false;
-        cityArray[num][indexOfCircle].setOptions({strokeOpacity: strk_opct});
+        circle.infoWindowStaying = false;
+        circle.setOptions({strokeOpacity: strk_opct});
     }
+}
+
+function toggleLineFromPublisher(topicNum, pubID, element) {
+    let deselect = document.getElementById('deselectPublishers');
+    let found = selectedPublishers.find(function(pub) { return pub.id == pubID; });
+    if(typeof found == 'undefined') {
+        if(selectedPublishers.length == 0) {
+            linesToPublishers[topicNum].forEach(function(polylines) {
+                polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: 'rgb(0, 0, 0)', strokeOpacity: 0.1}); });
+            });
+        }
+
+        selectedPublishers.push({id: pubID, element: element});
+
+        publishers[pubID].polylines[topicNum].forEach(function(polylines) { 
+            polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
+        });
+
+        deselect.style.visibility = 'visible';
+
+    } else {
+        let idx = selectedPublishers.indexOf(found);
+        selectedPublishers.splice(idx, 1);
+
+        if(selectedPublishers.length == 0) {
+            linesToPublishers[topicNum].forEach(function(polylines) {
+                polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
+            });
+
+            deselect.style.visibility = 'hidden';
+        } else {
+            publishers[found.id].polylines[topicNum].forEach(function(polylines) { 
+                polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: 'rgb(0, 0, 0)', strokeOpacity: 0.1}); });
+            });
+        }
+    }
+}
+
+function clickForPublisher(topicNum, element) {
+    let pubID = element.id;
+    $(element).toggleClass('item');
+    $(element).toggleClass('item-active');
+    
+    toggleLineFromPublisher(topicNum, pubID, element);
+
+    let circle = publishers[pubID].circle;
+    var infoWindow = circle.infoWindow;
+    var marker = circle.marker;
+
+    toggleCircle(circle, infoWindow, marker);
+}
+
+var selectedTitles = [];
+
+function toggleLineFromTitle(topicNum, titleID, publisherID, element) {
+    let deselect = document.getElementById('deselectTitles');
+    let found = selectedTitles.find(function(title) { return title.id == titleID; });
+    if(typeof found == 'undefined') {
+        if(selectedTitles.length == 0) {
+            linesToPublishers[topicNum].forEach(function(polylines) {
+                polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: 'rgb(0, 0, 0)', strokeOpacity: 0.1}); });
+            });
+        }
+
+        selectedTitles.push({id: titleID, publisherID: publisherID, element: element});
+
+        publisherID.forEach(function(pubID) {
+            publishers[pubID].polylines[topicNum].forEach(function(polylines) {
+                if(polylines.cityIndex == titleID)
+                    polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
+            });            
+        });
+        
+        deselect.style.visibility = 'visible';
+
+    } else {
+        let idx = selectedTitles.indexOf(found);
+        selectedTitles.splice(idx, 1);
+
+        if(selectedTitles.length == 0) {
+            linesToPublishers[topicNum].forEach(function(polylines) {
+                polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
+            });
+
+            deselect.style.visibility = 'hidden';
+        } else {
+            found.publisherID.forEach(function(pubID) {
+                publishers[pubID].polylines[topicNum].forEach(function(polylines) {
+                    if(polylines.cityIndex == titleID)
+                        polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: 'rgb(0, 0, 0)', strokeOpacity: 0.1}); });
+                });                
+            });
+        }
+    }
+}
+
+function clickForTitle(topicNum, indexOfCircle, element) {
+    var infoWindow = cityArray[topicNum][indexOfCircle].circle.infoWindow;
+    var marker = cityArray[topicNum][indexOfCircle].circle.marker;
+    $(element).toggleClass('item');
+    $(element).toggleClass('item-active');
+    
+    let publisherID =  cityArray[topicNum][indexOfCircle].publisherID;
+    toggleLineFromTitle(topicNum, indexOfCircle, publisherID, element);
+    
+    toggleCircle(cityArray[topicNum][indexOfCircle].circle, infoWindow, marker);
 }
 
 //To-Do: add loading animation
@@ -420,7 +518,7 @@ function loadData() {
         });
 }
 
-function addPublisherCircle(id, coord) {
+function addPublisherCircle(topicNum, pubID, name, coord) {
 
     var circle = new google.maps.Circle({
         strokeColor: 'white',
@@ -434,8 +532,82 @@ function addPublisherCircle(id, coord) {
         radius: minCirclesize * 2
     });
 
+    var infoWindow = new google.maps.InfoWindow({
+        content: "<h3> Publisher: " + name + "</h3>"
+    });
+
+    var marker = new google.maps.Marker({
+        position: coord,
+        map: map,
+        title: pubID
+    });
+
+    marker.setVisible(false);
+
+    marker.addListener('click', function() {
+        infoWindow.setZIndex(++infoWindowZIndex);
+    });
+
+    infoWindow.addListener('closeclick', function() {
+        circle.infoWindowStaying = false;
+        marker.setVisible(false);
+        circle.setOptions({strokeOpacity: strk_opct});
+        infoWindow.setZIndex(0);
+
+        var e = document.getElementById(pubID);
+        $(e).toggleClass('item');
+        $(e).toggleClass('item-active');
+
+        toggleLineFromPublisher(topicNum, pubID, e);
+    });
+
+    circle.infoWindowStaying = false;
+    circle.infoWindow = infoWindow;
+    circle.marker = marker;
+    // circle.count = count;
+    // circle.weightedRadius = radius;
+    circle.zoomLevel = map.getZoom();
+
+    circle.addListener('mouseover', function () {
+        if(circle.infoWindowStaying) return;
+
+        marker.setVisible(true);
+        infoWindow.setZIndex(++infoWindowZIndex);
+        infoWindow.open(map, marker);
+        circle.setOptions({
+                                // zIndex: zIndex,
+                                // strokeColor: clr,
+                                strokeOpacity: 1
+                                // fillOpacity: fill_opct,
+                                // radius: circlesize
+                            });
+
+        var e = document.getElementById(pubID);
+        e.scrollIntoView();
+        $(e).toggleClass('item');
+        $(e).toggleClass('item-active');
+    });
+
+    circle.addListener('mouseout', function (event) {
+        if(circle.infoWindowStaying) return;
+        marker.setVisible(false);
+        infoWindow.close();
+        circle.setOptions({strokeOpacity: strk_opct});
+        infoWindow.setZIndex(0);
+
+        var e = document.getElementById(pubID);
+        $(e).toggleClass('item');
+        $(e).toggleClass('item-active');
+    });
+
+    circle.addListener('click', function () {
+        circle.infoWindowStaying = !circle.infoWindowStaying;
+        var e = document.getElementById(pubID);
+        toggleLineFromPublisher(topicNum, pubID, e);
+    });
+
     circle.setVisible(lineVisible);
-    publishers[id].circle = circle;
+    publishers[pubID].circle = circle;
 }
 
 //add circles on the map
@@ -449,7 +621,7 @@ function addDataPointCircle(lat, lon, clr, strk_opct, fill_opct, radius, name, t
     
     var circleIndex = cityArray[topicNum].length;
 
-    var infowindow = new google.maps.InfoWindow({
+    var infoWindow = new google.maps.InfoWindow({
         content: contentString
     });
 
@@ -458,10 +630,10 @@ function addDataPointCircle(lat, lon, clr, strk_opct, fill_opct, radius, name, t
     // </div>
     // var div = document.createElement('div');
     // var div.innerHTML = contentString;
-    // var infowindow = new CustomPopup(
+    // var infoWindow = new CustomPopup(
     //   new google.maps.LatLng(-33.866, 151.196),
     //   div);
-    // infowindow.setMap(map);
+    // infoWindow.setMap(map);
 
     var marker = new google.maps.Marker({
         position: coord,
@@ -471,18 +643,20 @@ function addDataPointCircle(lat, lon, clr, strk_opct, fill_opct, radius, name, t
     marker.setVisible(false);
 
     marker.addListener('click', function() {
-        infowindow.setZIndex(++infoWindowZIndex);
+        infoWindow.setZIndex(++infoWindowZIndex);
     });
 
-    infowindow.addListener('closeclick', function() {
+    infoWindow.addListener('closeclick', function() {
         cityCircle.infoWindowStaying = false;
         marker.setVisible(false);
         cityCircle.setOptions({strokeOpacity: strk_opct});
-        infowindow.setZIndex(0);
+        infoWindow.setZIndex(0);
         var id= topicNum + "-" + circleIndex;
         var e = document.getElementById(id);
         $(e).toggleClass('item');
         $(e).toggleClass('item-active');
+
+        toggleLineFromTitle(topicNum, circleIndex, cityArray[topicNum][circleIndex].publisherID, e);
     });
 
     var cityCircle = new google.maps.Circle({
@@ -498,7 +672,7 @@ function addDataPointCircle(lat, lon, clr, strk_opct, fill_opct, radius, name, t
     });
     
     cityCircle.infoWindowStaying = false;
-    cityCircle.infoWindow = infowindow;
+    cityCircle.infoWindow = infoWindow;
     cityCircle.marker = marker;
     cityCircle.count = count;
     cityCircle.weightedRadius = radius;
@@ -513,8 +687,8 @@ function addDataPointCircle(lat, lon, clr, strk_opct, fill_opct, radius, name, t
         if(cityCircle.infoWindowStaying) return;
 
         marker.setVisible(true);
-        infowindow.setZIndex(++infoWindowZIndex);
-        infowindow.open(map, marker);
+        infoWindow.setZIndex(++infoWindowZIndex);
+        infoWindow.open(map, marker);
         cityCircle.setOptions({
                                 // zIndex: zIndex,
                                 // strokeColor: clr,
@@ -525,15 +699,14 @@ function addDataPointCircle(lat, lon, clr, strk_opct, fill_opct, radius, name, t
         var e = document.getElementById(id);
         $(e).toggleClass('item');
         $(e).toggleClass('item-active');
-        cityCircle.setOptions({ strokeOpacity: 1 });
     });
 
     cityCircle.addListener('mouseout', function (event) {
         if(cityCircle.infoWindowStaying) return;
         marker.setVisible(false);
-        infowindow.close();
+        infoWindow.close();
         cityCircle.setOptions({strokeOpacity: strk_opct});
-        infowindow.setZIndex(0);
+        infoWindow.setZIndex(0);
 
         var id= topicNum + "-" + circleIndex;
         var e = document.getElementById(id);
@@ -543,15 +716,18 @@ function addDataPointCircle(lat, lon, clr, strk_opct, fill_opct, radius, name, t
 
     cityCircle.addListener('click', function () {
         cityCircle.infoWindowStaying = !cityCircle.infoWindowStaying;
+        var id= topicNum + "-" + circleIndex;
+        var e = document.getElementById(id);
+        toggleLineFromTitle(topicNum, circleIndex, cityArray[topicNum][circleIndex].publisherID, e);
     });
 
-    cityArray[topicNum].push(cityCircle);
+    cityArray[topicNum].push({circle: cityCircle, publisherID:[]});
 }
 
 function hideCircles(topic) {
     if(topic != -1) {
-        cityArray[topic].forEach(function(circle) {
-            circle.setVisible(false);
+        cityArray[topic].forEach(function(city) {
+            city.circle.setVisible(false);
         });
     }
 }
@@ -573,6 +749,9 @@ function drawagain(selectedTopic) {
     
     if(lastTopic == selectedTopic) return;
 
+    deselectAllPublishers();
+    deselectAllTitles();
+
     hideCircles(lastTopic);
     hideLines(lastTopic);
 
@@ -580,8 +759,8 @@ function drawagain(selectedTopic) {
         addDataLayerForTopic(selectedTopic);
     } else {
         if(circleVisible) {
-            cityArray[selectedTopic].forEach(function(circle) {
-                circle.setVisible(true);
+            cityArray[selectedTopic].forEach(function(city) {
+                city.circle.setVisible(true);
             });
         }
 
@@ -611,7 +790,7 @@ function resizeCirclesForZoom(force = false) {
     var mapBound = map.getBounds();
     if(typeof cityArray[lastTopic] != 'undefined') {
         for (var i = 0; i < cityArray[lastTopic].length; i++) {
-            var cityCircle = cityArray[lastTopic][i];
+            var cityCircle = cityArray[lastTopic][i].circle;
             var circleBound = cityCircle.getBounds();
 
             if((mapBound.contains(cityCircle.center)) 
@@ -819,7 +998,9 @@ function initMap(){
         else if(event.key == '.') next();
     }
 
-    document.getElementById('deselectPublishers').onclick = deselectAllPublishers;       
+    document.getElementById('deselectPublishers').onclick = deselectAllPublishers;
+    document.getElementById('deselectTitles').onclick = deselectAllTitles;
+
 }
 
 /* CustomPopup code example from https://developers.google.com/maps/documentation/javascript/examples/overlay-popup */

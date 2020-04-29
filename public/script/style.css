@@ -343,14 +343,15 @@ body {
     color: #c6d7df;
 }
 
-#deselectPublishers {
+.deselect {
     position: absolute;
+    top: 9px;
     right: 0;
     font-size: 20px;
     visibility: hidden;
 }
 
-#deselectPublishers:hover {
+.deselect:hover {
     cursor: pointer;
     color: #fff;
 }

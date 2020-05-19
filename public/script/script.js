@@ -22,6 +22,7 @@ var circleVisible = true;
 var lineVisible = true;
 var maxStrokeWeight = 9;
 var selectedPublishers = [];
+var selectedTitles = [];
 
 var CustomPopup;
 
@@ -318,14 +319,23 @@ function deselectAllPublishers() {
     });
 
     selectedPublishers = [];
-        
-    linesToPublishers[lastTopic].forEach(function(polylines) {
-        polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
-    });
+    
+    if(selectedTitles.length == 0) {
+        linesToPublishers[lastTopic].forEach(function(polylines) {
+            polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
+        });
+    } else {
+        selectedTitles.forEach(function(title) {
+             title.publisherID.forEach(function(pubID) {
+                publishers[pubID].polylines[lastTopic].forEach(function(polylines) {
+                    if(polylines.cityIndex == title.id)
+                        polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
+                });            
+            });
+        });
+    }
 
     document.getElementById('deselectPublishers').style.visibility = 'hidden';
-
-
 }
 
 function deselectAllTitles() {
@@ -343,9 +353,17 @@ function deselectAllTitles() {
 
     selectedTitles = [];
         
-    linesToPublishers[lastTopic].forEach(function(polylines) {
-        polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
-    });
+    if(selectedPublishers.length == 0) {
+        linesToPublishers[lastTopic].forEach(function(polylines) {
+            polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
+        });
+    } else {
+        selectedPublishers.forEach(function(pub){
+            publishers[pub.id].polylines[lastTopic].forEach(function(polylines) { 
+                polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
+            });
+        });    
+    }
 
     document.getElementById('deselectTitles').style.visibility = 'hidden';
 }
@@ -375,24 +393,42 @@ function toggleLineFromPublisher(topicNum, pubID, element) {
             linesToPublishers[topicNum].forEach(function(polylines) {
                 polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: 'rgb(0, 0, 0)', strokeOpacity: 0.1}); });
             });
+
+            deselect.style.visibility = 'visible';
         }
 
         selectedPublishers.push({id: pubID, element: element});
 
-        publishers[pubID].polylines[topicNum].forEach(function(polylines) { 
-            polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
-        });
-
-        deselect.style.visibility = 'visible';
-
+        if(selectedTitles.length == 0) {
+            publishers[pubID].polylines[topicNum].forEach(function(polylines) { 
+                polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
+            });
+        } else {
+            publishers[pubID].polylines[topicNum].forEach(function(polylines) { 
+                let found = selectedTitles.find(function(title) { return polylines.cityIndex == title.id; });
+                if(typeof found != 'undefined')
+                    polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
+            });
+        }
     } else {
         let idx = selectedPublishers.indexOf(found);
         selectedPublishers.splice(idx, 1);
 
         if(selectedPublishers.length == 0) {
-            linesToPublishers[topicNum].forEach(function(polylines) {
-                polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
-            });
+            if(selectedTitles.length == 0) {
+                linesToPublishers[topicNum].forEach(function(polylines) {
+                    polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
+                });
+            } else {
+                selectedTitles.forEach(function(title) {
+                     title.publisherID.forEach(function(pID) {
+                        publishers[pID].polylines[topicNum].forEach(function(polylines) {
+                            if(polylines.cityIndex == title.id)
+                                polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
+                        });            
+                    });
+                });
+            }
 
             deselect.style.visibility = 'hidden';
         } else {
@@ -417,8 +453,6 @@ function clickForPublisher(topicNum, element) {
     toggleCircle(circle, infoWindow, marker);
 }
 
-var selectedTitles = [];
-
 function toggleLineFromTitle(topicNum, titleID, publisherID, element) {
     let deselect = document.getElementById('deselectTitles');
     let found = selectedTitles.find(function(title) { return title.id == titleID; });
@@ -427,30 +461,52 @@ function toggleLineFromTitle(topicNum, titleID, publisherID, element) {
             linesToPublishers[topicNum].forEach(function(polylines) {
                 polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: 'rgb(0, 0, 0)', strokeOpacity: 0.1}); });
             });
+
+            deselect.style.visibility = 'visible';
         }
 
         selectedTitles.push({id: titleID, publisherID: publisherID, element: element});
 
-        publisherID.forEach(function(pubID) {
-            publishers[pubID].polylines[topicNum].forEach(function(polylines) {
-                if(polylines.cityIndex == titleID)
-                    polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
-            });            
-        });
-        
-        deselect.style.visibility = 'visible';
+        if(selectedPublishers.length == 0) {
+            publisherID.forEach(function(pubID) {
+                publishers[pubID].polylines[topicNum].forEach(function(polylines) {
+                    if(polylines.cityIndex == titleID)
+                        polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
+                });            
+            });
+        } else {
+            publisherID.forEach(function(pubID) {
+                let found = selectedPublishers.find(function(pub) { return pub.id == pubID; });
+                if(typeof found != 'undefined') {    
+                    publishers[pubID].polylines[topicNum].forEach(function(polylines) {
+                        if(polylines.cityIndex == titleID)
+                            polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
+                    });            
+                }           
+            });
+        }
 
     } else {
         let idx = selectedTitles.indexOf(found);
         selectedTitles.splice(idx, 1);
 
         if(selectedTitles.length == 0) {
-            linesToPublishers[topicNum].forEach(function(polylines) {
-                polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
-            });
+            if(selectedPublishers.length == 0) {
+                linesToPublishers[topicNum].forEach(function(polylines) {
+                    polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
+                });
+            } else {
+                selectedPublishers.forEach(function(pub){
+                    publishers[pub.id].polylines[topicNum].forEach(function(polylines) { 
+                        polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
+                    });
+                });    
+            }
 
             deselect.style.visibility = 'hidden';
+            
         } else {
+
             found.publisherID.forEach(function(pubID) {
                 publishers[pubID].polylines[topicNum].forEach(function(polylines) {
                     if(polylines.cityIndex == titleID)

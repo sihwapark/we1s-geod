@@ -314,6 +314,14 @@ body {
     background-color: #023e90;
 }
 
+.filter {
+    position: relative;
+    margin-right: 3px;
+    top: 1px;
+    visibility: hidden;
+    width: 0;
+}
+
 .publishers {
     color: #c6d7df;
     font-size: 12px;
@@ -348,7 +356,7 @@ body {
     top: 9px;
     right: 0;
     font-size: 20px;
-    visibility: hidden;
+   toggleLineFromPublisher
 }
 
 .deselect:hover {

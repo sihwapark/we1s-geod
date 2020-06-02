@@ -17,6 +17,7 @@ var heatmap;
 var heatmapRadius = 50;
 var heatmapDataPoints = [];
 var publishers = [];
+
 var linesToPublishers = [];
 var circleVisible = true;
 var lineVisible = true;
@@ -35,6 +36,25 @@ var heatmapGradient = ['rgba(173,221,142,0)','rgb(120,198,121)','rgb(65,171,93)'
 var lineGradient = ['rgb(255, 200, 0)', 'rgb(255, 96, 96)', 'rgb(255, 255, 255)'];
 var lineOpacity = [0.15, 0.2, 0.2];
 var lineOpacitySelected = [0.5, 0.3, 0.3];
+
+var isUinonSearch = false;
+
+publishers.makeGradientSelected = function(pubID, topicNum, cityIndex=-1) {
+    let allCity = (cityIndex == -1);
+    this[pubID].polylines[topicNum].forEach(function(polylines) {
+        if(allCity || (polylines.cityIndex == cityIndex)) {            
+            polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
+        }
+    });
+};
+
+publishers.changeLinesColor = function(pubID, topicNum, color, opacity, cityIndex=-1) {
+    let allCity = (cityIndex == -1);
+    this[pubID].polylines[topicNum].forEach(function(polylines) { 
+        if(allCity || (polylines.cityIndex == cityIndex))
+            polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: color, strokeOpacity: opacity}); });
+    });
+};
 
 function initInput() {
     var input = document.getElementById("topicInput");
@@ -305,6 +325,18 @@ function addDataLayerForTopic(num) {
     listWiki[num] = wiki;
 }
 
+function changeAllLinesColor(topicNum, color, opacity) {
+    linesToPublishers[topicNum].forEach(function(polylines) {
+        polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: color, strokeOpacity: opacity}); });
+    });
+}
+
+function makeAllLinesGradient(topicNum) {
+    linesToPublishers[topicNum].forEach(function(polylines) {
+        polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
+    });
+}
+
 function deselectAllPublishers() {
     
     selectedPublishers.forEach(function(pub) {
@@ -316,21 +348,22 @@ function deselectAllPublishers() {
         var marker = circle.marker;
 
         toggleCircle(circle, infoWindow, marker);
+
+        if(isUinonSearch) {
+            publishers.changeLinesColor(pub.id, lastTopic, 'rgb(0, 0, 0)', 0.1);
+        }
     });
 
     selectedPublishers = [];
     
     if(selectedTitles.length == 0) {
-        linesToPublishers[lastTopic].forEach(function(polylines) {
-            polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
-        });
+        makeAllLinesGradient(lastTopic);
+        toggleSearchFilter(false);
     } else {
+
         selectedTitles.forEach(function(title) {
              title.publisherID.forEach(function(pubID) {
-                publishers[pubID].polylines[lastTopic].forEach(function(polylines) {
-                    if(polylines.cityIndex == title.id)
-                        polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
-                });            
+                publishers.makeGradientSelected(pubID, lastTopic, title.id);
             });
         });
     }
@@ -349,19 +382,22 @@ function deselectAllTitles() {
         var marker = circle.marker;
 
         toggleCircle(circle, infoWindow, marker);
+
+        if(isUinonSearch) {
+             title.publisherID.forEach(function(pubID) {
+                publishers.changeLinesColor(pubID, lastTopic, 'rgb(0, 0, 0)', 0.1);
+            });
+        }
     });
 
     selectedTitles = [];
         
     if(selectedPublishers.length == 0) {
-        linesToPublishers[lastTopic].forEach(function(polylines) {
-            polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
-        });
+        makeAllLinesGradient(lastTopic);
+        toggleSearchFilter(false);
     } else {
         selectedPublishers.forEach(function(pub){
-            publishers[pub.id].polylines[lastTopic].forEach(function(polylines) { 
-                polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
-            });
+            publishers.makeGradientSelected(pub.id, lastTopic);
         });    
     }
 
@@ -385,56 +421,80 @@ function toggleCircle(circle, infoWindow, marker) {
     }
 }
 
+function toggleSearchFilter(on) {
+    let filter = document.getElementById('searchFilter');
+    if(on) {
+        filter.style.width = '52px';
+        filter.style.visibility = 'visible';
+    } else {
+        filter.style.width = '0';
+        filter.style.visibility = 'hidden';
+    }
+}
+
 function toggleLineFromPublisher(topicNum, pubID, element) {
     let deselect = document.getElementById('deselectPublishers');
     let found = selectedPublishers.find(function(pub) { return pub.id == pubID; });
-    if(typeof found == 'undefined') {
-        if(selectedPublishers.length == 0) {
-            linesToPublishers[topicNum].forEach(function(polylines) {
-                polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: 'rgb(0, 0, 0)', strokeOpacity: 0.1}); });
-            });
 
-            deselect.style.visibility = 'visible';
+    if(typeof found == 'undefined') { // selected
+        if(selectedPublishers.length == 0) { // if it is the first selection, black out all lines first
+            changeAllLinesColor(topicNum, 'rgb(0, 0, 0)', 0.1);
+            
+            deselect.style.visibility = 'visible'; // show the Deselect All Publishers button
+
+            toggleSearchFilter(true);
         }
 
         selectedPublishers.push({id: pubID, element: element});
+        
 
-        if(selectedTitles.length == 0) {
-            publishers[pubID].polylines[topicNum].forEach(function(polylines) { 
-                polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
-            });
-        } else {
-            publishers[pubID].polylines[topicNum].forEach(function(polylines) { 
+        if(selectedTitles.length == 0) { // if no title is selected
+            publishers.makeGradientSelected(pubID, topicNum);
+        } else { // if not
+            if(isUinonSearch) { // Union operation with selectedTitles
+                selectedTitles.forEach(function(title) {
+                    title.publisherID.forEach(function(pID) {
+                        publishers.makeGradientSelected(pID, topicNum, title.id);            
+                    });
+                });
+            }
+
+            publishers[pubID].polylines[topicNum].forEach(function(polylines) {
                 let found = selectedTitles.find(function(title) { return polylines.cityIndex == title.id; });
-                if(typeof found != 'undefined')
+                if(typeof found != 'undefined') { // Intersection operation with selectedTitles
                     polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
+                }
             });
         }
-    } else {
+    } else { // deselected
         let idx = selectedPublishers.indexOf(found);
         selectedPublishers.splice(idx, 1);
 
         if(selectedPublishers.length == 0) {
             if(selectedTitles.length == 0) {
-                linesToPublishers[topicNum].forEach(function(polylines) {
-                    polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
-                });
+                makeAllLinesGradient(topicNum);
+                toggleSearchFilter(false);
             } else {
+                if(isUinonSearch) publishers.changeLinesColor(found.id, topicNum, 'rgb(0, 0, 0)', 0.1);
+
                 selectedTitles.forEach(function(title) {
                      title.publisherID.forEach(function(pID) {
-                        publishers[pID].polylines[topicNum].forEach(function(polylines) {
-                            if(polylines.cityIndex == title.id)
-                                polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
-                        });            
+                        publishers.makeGradientSelected(pID, topicNum, title.id);            
                     });
                 });
             }
 
             deselect.style.visibility = 'hidden';
         } else {
-            publishers[found.id].polylines[topicNum].forEach(function(polylines) { 
-                polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: 'rgb(0, 0, 0)', strokeOpacity: 0.1}); });
-            });
+            publishers.changeLinesColor(found.id, topicNum, 'rgb(0, 0, 0)', 0.1);
+
+            if(isUinonSearch) { // Union operation with selectedTitles
+                selectedTitles.forEach(function(title) {
+                    title.publisherID.forEach(function(pID) {
+                        publishers.makeGradientSelected(pID, topicNum, title.id);            
+                    });
+                });
+            }
         }
     }
 }
@@ -458,31 +518,31 @@ function toggleLineFromTitle(topicNum, titleID, publisherID, element) {
     let found = selectedTitles.find(function(title) { return title.id == titleID; });
     if(typeof found == 'undefined') {
         if(selectedTitles.length == 0) {
-            linesToPublishers[topicNum].forEach(function(polylines) {
-                polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: 'rgb(0, 0, 0)', strokeOpacity: 0.1}); });
-            });
+            changeAllLinesColor(topicNum, 'rgb(0, 0, 0)', 0.1);
 
             deselect.style.visibility = 'visible';
+            toggleSearchFilter(true);
         }
 
         selectedTitles.push({id: titleID, publisherID: publisherID, element: element});
 
         if(selectedPublishers.length == 0) {
             publisherID.forEach(function(pubID) {
-                publishers[pubID].polylines[topicNum].forEach(function(polylines) {
-                    if(polylines.cityIndex == titleID)
-                        polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
-                });            
+                publishers.makeGradientSelected(pubID, topicNum, titleID);
             });
         } else {
+            if(isUinonSearch) { // Union operation with selectedPublishers
+                selectedPublishers.forEach(function(pub){
+                    publishers.makeGradientSelected(pub.id, topicNum);
+                });
+            }
+
             publisherID.forEach(function(pubID) {
                 let found = selectedPublishers.find(function(pub) { return pub.id == pubID; });
-                if(typeof found != 'undefined') {    
-                    publishers[pubID].polylines[topicNum].forEach(function(polylines) {
-                        if(polylines.cityIndex == titleID)
-                            polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
-                    });            
-                }           
+                
+                if(isUinonSearch || typeof found != 'undefined') {
+                    publishers.makeGradientSelected(pubID, topicNum, titleID);    
+                }
             });
         }
 
@@ -492,14 +552,18 @@ function toggleLineFromTitle(topicNum, titleID, publisherID, element) {
 
         if(selectedTitles.length == 0) {
             if(selectedPublishers.length == 0) {
-                linesToPublishers[topicNum].forEach(function(polylines) {
-                    polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacity[i]}); });
-                });
+                makeAllLinesGradient(topicNum);
+                toggleSearchFilter(false);
             } else {
+
+                if(isUinonSearch) { // Union operation with selectedTitles
+                    found.publisherID.forEach(function(pubID) {
+                        publishers.changeLinesColor(pubID, topicNum, 'rgb(0, 0, 0)', 0.1, titleID);
+                    }); 
+                }
+
                 selectedPublishers.forEach(function(pub){
-                    publishers[pub.id].polylines[topicNum].forEach(function(polylines) { 
-                        polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
-                    });
+                    publishers.makeGradientSelected(pub.id, topicNum);
                 });    
             }
 
@@ -508,12 +572,40 @@ function toggleLineFromTitle(topicNum, titleID, publisherID, element) {
         } else {
 
             found.publisherID.forEach(function(pubID) {
-                publishers[pubID].polylines[topicNum].forEach(function(polylines) {
-                    if(polylines.cityIndex == titleID)
-                        polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: 'rgb(0, 0, 0)', strokeOpacity: 0.1}); });
-                });                
+                publishers.changeLinesColor(pubID, topicNum, 'rgb(0, 0, 0)', 0.1, titleID);
             });
+
+            if(isUinonSearch) { // Union operation with selectedTitles
+                selectedPublishers.forEach(function(pub){
+                    publishers.makeGradientSelected(pub.id, topicNum);
+                });  
+            }
         }
+    }
+}
+
+function redrawLines() {
+    changeAllLinesColor(lastTopic, 'rgb(0, 0, 0)', 0.1);
+
+    if(isUinonSearch) {
+        selectedPublishers.forEach(function(pub){
+            publishers.makeGradientSelected(pub.id, lastTopic);
+        });
+
+        selectedTitles.forEach(function(title) {
+            title.publisherID.forEach(function(pID) {
+                publishers.makeGradientSelected(pID, lastTopic, title.id);            
+            });
+        });
+    } else {
+        selectedPublishers.forEach(function(pub){
+            publishers[pub.id].polylines[lastTopic].forEach(function(polylines) {
+                let found = selectedTitles.find(function(title) { return polylines.cityIndex == title.id; });
+                if(typeof found != 'undefined') {
+                    polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
+                }
+            });
+        });
     }
 }
 
@@ -1025,6 +1117,8 @@ function initMap(){
     var closeSetting = document.getElementById("close-setting");
     var closeModal = document.getElementById("close-modal");
 
+    let filter = document.getElementById('searchOption');
+
     info.onclick = function() {
         modal.style.display = "block";
     }
@@ -1054,9 +1148,16 @@ function initMap(){
         else if(event.key == '.') next();
     }
 
+    filter.onchange = function() {
+        isUinonSearch = (filter.value == 1);
+
+        if(selectedPublishers.length || selectedTitles.length) {
+            redrawLines();
+        }
+    }
+
     document.getElementById('deselectPublishers').onclick = deselectAllPublishers;
     document.getElementById('deselectTitles').onclick = deselectAllTitles;
-
 }
 
 /* CustomPopup code example from https://developers.google.com/maps/documentation/javascript/examples/overlay-popup */

@@ -461,7 +461,7 @@ function toggleLineFromPublisher(topicNum, pubID, element) {
 
             publishers[pubID].polylines[topicNum].forEach(function(polylines) {
                 let found = selectedTitles.find(function(title) { return polylines.cityIndex == title.id; });
-                if(typeof found != 'undefined') { // Intersection operation with selectedTitles
+                if(isUinonSearch || typeof found != 'undefined') { // Intersection operation with selectedTitles
                     polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
                 }
             });
@@ -598,14 +598,26 @@ function redrawLines() {
             });
         });
     } else {
-        selectedPublishers.forEach(function(pub){
-            publishers[pub.id].polylines[lastTopic].forEach(function(polylines) {
-                let found = selectedTitles.find(function(title) { return polylines.cityIndex == title.id; });
-                if(typeof found != 'undefined') {
-                    polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
-                }
+        if(selectedTitles.length == 0) { // if no title is selected
+            selectedPublishers.forEach(function(pub){
+                publishers.makeGradientSelected(pub.id, lastTopic);
             });
-        });
+        } else if(selectedPublishers.length == 0) {
+            selectedTitles.forEach(function(title) {
+                title.publisherID.forEach(function(pID) {
+                    publishers.makeGradientSelected(pID, lastTopic, title.id);            
+                });
+            });
+        } else {
+            selectedPublishers.forEach(function(pub){
+                publishers[pub.id].polylines[lastTopic].forEach(function(polylines) {
+                    let found = selectedTitles.find(function(title) { return polylines.cityIndex == title.id; });
+                    if(typeof found != 'undefined') {
+                        polylines.line.forEach(function(line, i) { line.setOptions({strokeColor: lineGradient[i], strokeOpacity: lineOpacitySelected[i]}); });
+                    }
+                });
+            });
+        }
     }
 }
 

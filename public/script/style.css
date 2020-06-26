@@ -36,7 +36,9 @@ body {
     padding: 20px;
     border: 1px solid #888;
     width: 80%;
+    height: 80%;
     font-size: 12px;
+    overflow: scroll;
 }
 
 /* The Close Button */
@@ -60,10 +62,13 @@ body {
 #windows {
     height: 100%;
     width: calc(270px - 20px);
-    /*background:#035071;*/
     color:#d3d3d3;
     float: right;
     margin: 0 10px;
+}
+
+#windows.active {
+    height: calc(100% - 110px);
 }
 
 .headersection {
@@ -114,7 +119,7 @@ body {
 #settingWindow {
     height: 80px;
     background:#023e58;
-    overflow-y: scroll;
+    overflow-y: hidden;
     border-style: 1px solid #696969;
     border-bottom-width: 2px;
     border-radius: 5px;
@@ -124,15 +129,32 @@ body {
     display: none;
 }
 
-#tooltipSideBar{
-    text-underline-position: below;
-    margin-left: 1px;
-    margin-right: 1px;
+.settingOption:hover{
+    cursor: help;
+} 
+
+.settingOption #settingTip {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s;
+    width: calc(270px - 30px);
+    /* background-color: #023e58; */
+    color: #fff;
+    background-color: #696969;
+    text-align: left;
+    z-index: 1;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    padding: 10px;
+    float:right;
+    position: absolute;
+    left: 50%; 
 }
 
-#tooltipSideBar:hover{
-    color: yellow;
-}
+.settingOption:hover #settingTip{
+    visibility: visible;
+    opacity: 1;
+} 
 
 .inputcontainer {
   width: 100%;
@@ -160,8 +182,8 @@ body {
 }
 
 #window1 {
-    height: calc((100% - 240px)/2 - 20px);
-    background:#023e58;
+    height: calc((100% - 270px)/3 - 25px + 50px);
+    background: #023e58;
     overflow-y: scroll;
     border-style: solid;
     border-width: 2px;
@@ -172,8 +194,23 @@ body {
 }
 
 #window2 {
-    height: calc((100% - 240px)/2 - 20px);
-    background:#023e58;
+    height: calc((100% - 270px)/3 - 25px + 50px);
+    background: #023e58;
+    overflow-y: scroll;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #023e58;
+    border-top-width: 2px;
+    border-radius: 5px;
+    padding: 10px 15px;
+
+    color:#c6d7df;
+    font-size: 12px;
+}
+
+#window3 {
+    height: calc((100% - 270px)/3 - 25px - 100px);
+    background: #023e58;
     overflow-y: scroll;
     border-style: solid;
     border-width: 2px;
@@ -194,8 +231,10 @@ body {
     padding: 5px 0;
 }
 
+
 #window2 ul{
-    list-style-type: none;
+    list-style-type: decimal;
+    list-style-position: inside;
     margin: 0;
     padding: 0;
 }
@@ -204,10 +243,37 @@ body {
     padding: 5px 0;
 }
 
+#window3 ul{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#window3 li{
+    padding: 5px 0;
+}
+
+.scrollbar {}
+
+.scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  display: none;
+}
+ 
+.scrollbar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+
 .sectiontitle {
     position: relative;
-    /* display: inline-block; */
-
     height: 30px;
     width: 100%;
     display: inline-flex;
@@ -217,30 +283,37 @@ body {
   
 .sectiontitle .tooltip {
     visibility: hidden;
-    width: calc(270px - 50px);
-    background-color: #555;
+    width: calc(270px - 30px);
+    /* background-color: #023e58; */
     color: #fff;
-    text-align: center;
+    text-align: left;
     z-index: 1;
-    border-radius: 6px;
-    padding: 5px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    padding: 10px;
     float:right;
     position: absolute;
     left: -80%;
-    bottom: -25%; 
-    margin-left: -60px;
+    top: 30%;
+    /* bottom: -15%;  */
+    margin-left: -70px;
     opacity: 0;
     transition: opacity 0.3s;
+}
+
+.sectiontitle:hover{
+    color: rgb(255, 253, 234);
+    cursor: help;
 }
 
 .sectiontitle:hover .tooltip {
     visibility: visible;
     opacity: 1;
-    background-color: darkgrey;
+    background-color: #696969;
 }
 
 .wikititles {
-    color:#c6d7df;
+    color: #c6d7df;
     font-size: 12px;
     word-break: break-all;
     word-wrap: break-word;
@@ -252,18 +325,64 @@ body {
 
 .wikititles .item:hover {
     cursor: pointer;
-    background-color: #023e90;   
+    color:rgb(255, 253, 234);
+    /* background-color: #023e90;    */
 }
 
 .wikititles .item-active  {
     cursor: pointer;
-    background-color: #a80707;   
+    color:rgb(255, 253, 234);
+    background-color: #6d4040;
 }
 
 .wikititles .item-active:hover  {
     cursor: pointer;
-    background-color: #023e90;   
+    background-color: #023e90;
 }
+
+.publishers {
+    color: #c6d7df;
+    font-size: 12px;
+    word-break: break-all;
+    word-wrap: break-word;
+}
+
+.publishers .item {
+    background-color: #023e58;
+}
+
+.publishers .item:hover {
+    cursor: pointer;
+    color:rgb(255, 253, 234);
+}
+
+.publishers .item-active  {
+    cursor: pointer;
+    background-color: #c6d7df;
+    color: #000;
+}
+
+.publishers .item-active:hover  {
+    cursor: pointer;
+    background-color: #023e90;
+    color: #c6d7df;
+}
+
+#deselectPublishers {
+    position: absolute;
+    right: 0;
+    font-size: 20px;
+    visibility: hidden;
+}
+
+#deselectPublishers:hover {
+    cursor: pointer;
+    color: #fff;
+}
+
+#total { 
+    margin-left: 3px;
+ }
 
 #legend {
     background: #fff;
@@ -280,3 +399,4 @@ body {
     vertical-align: middle;
     height: 20px;
 }
+

@@ -17,11 +17,58 @@
 <body>
     <div id="infoModal" class="modal">
     <!-- Modal content -->
-        <div class="modal-content">
+        <div class="modal-content scrollbar">
             <span id='close-modal' class="close">&times;</span>
-            <!-- <p>
-                <b>Description</b>
-            </p> -->
+            <p>
+                <h2>How to Read and Use GeoD</h2>
+                <h3>Visual Coding</h3>
+                <ul>
+                    <li>
+                        Circles: Pink circles represent locations of geocoded titles that appear in wikified documents of a selected topic. White circles mean publishers of the documents.
+                    </li>
+                    <li>
+                        Lines: Lines between pink and white circles represent the relationship between the documents and their publishers.
+                    </li>
+                    <li>
+                        Heatmap: The geographical heatmap shows the cluster and density of all locations of geocoded titles found in documents of all topics.
+                    </li>
+                </ul>
+
+                <h3>Checkboxes in Settings</h3>
+                <ul>
+                    <li>
+                        Weighted radius: If it is checked, the radii of pink circles vary according to the count of each location. The more a location is mentioned, the bigger its circle is.
+                    </li>
+                    <li>
+                        Circles of a topic: If unchecked, it hides pink circles.
+                    </li>
+                    <li>
+                        Lines to publishers: If unchecked, lines connecting publisher and documents become hidden.
+                    </li>
+                    <li>
+                        Heatmap of all topics: If uncheked, the heatmap disappears.
+                    </li>
+                </ul>
+
+                <h3>User Interface and Interaction</h3>
+                <ul>
+                    <li>
+                        Topic navigation: You can explore topics by changing a topic number and pressing the enter key or clicking the 'Submit' button. It is also possible to navigate across the topics sequentially with 'Prev' and 'Next' buttons.
+                    </li>
+                    <li>
+                        Geocoded titles: This section shows a list of geocoded titles belonging to a selected topic. A number next to each title means the frequency of the title. You can check  the actual locations of the titles on the map by clicking.
+                    </li>
+                    <li>
+                        Topic keywords: This section shows a list of keywords of a selected topic.
+                    </li>
+                    <li>
+                        Mouse interaction on the map: To zoom in or out, use the mouse wheel or the +/- zoom buttons. If you mouseover a pink circle, a marker with an info window will appear and they will be hidden when mouse out. It is possible to prevent the marker and the info window from disappearing by clicking the circle.
+                    </li>
+                </ul>
+            </p>
+            <br>
+
+            <h2>Project Credits</h2>
             <p> 
                 <b>Authors</b><br>
                 Dan C. Baciu, Sihwa Park, Xindi Kang, Yichen Li, Junqing Sun, Akshay Sunku, Zhenghao Zao, Sunit Pravin Kajarekar, Su Burtner, WE1S Interpretation Lab.<br>
@@ -33,8 +80,8 @@
             <p>
                 <b>Contributions</b><br>
                 Dan C. Baciu: data science concept, design concept, supervision (<a href='https://orcid.org/0000-0002-0043-5616' target='_blank'>orcid</a>)<br>
-                Sihwa Park: data visualization leader, interface design (<a href='https://orcid.org/0000-0001-9620-8903' target='_blank'>orcid</a>)<br>
-                Cindy Kang: interface design (<a href='https://orcid.org/0000-0002-6781-5656' target='_blank'>orcid</a>)<br>
+                Sihwa Park: design and development lead, data visualization, interface design (<a href='https://orcid.org/0000-0001-9620-8903' target='_blank'>orcid</a>)<br>
+                Xindy Kang: initial visualization, interface design (<a href='https://orcid.org/0000-0002-6781-5656' target='_blank'>orcid</a>)<br>
                 Yichen Li: initial interface design, GIS<br>
                 Junqing Sun: data preprocessing and testing<br>
                 Akshay Sunku: GIS, initial interface design<br>
@@ -55,10 +102,26 @@
         </div>
         <div id="settingWindow">
             <span id='close-setting' class="close">&times;</span>
-            <input type="checkbox" name="radius" checked onchange="toggleRadius()">Weighted radius <br>
-            <input type="checkbox" name="topic" checked onchange="toggleCircles()">Circles of a topic<br>
-            <input type="checkbox" name="line" checked onchange="toggleLines()">Lines to publishers<br>
-            <input type="checkbox" name="hetmap" checked onchange="toggleHeatmap()">Heatmap of all topics<br>
+            <input type="checkbox" name="radius" checked onchange="toggleRadius()">
+            <span class = "settingOption">Weighted Radius
+                <div id="settingTip">Weighted Radius allows the size of the circles to represent the weight of the title selected. Turning off weighted radius removes the overlapping of circles due to size differences, enabling clearer viewing of locations on the map.
+                </div>
+            </span><br>
+            <input type="checkbox" name="topic" checked onchange="toggleCircles()">
+            <span class = "settingOption">Topic Circles
+                <div id="settingTip">Turn off topic circles to get a clear view of the publisher or heatmap view
+                </div>
+            </span><br>
+            <input type="checkbox" name="line" checked onchange="toggleLines()">
+            <span class = "settingOption">Lines to publishers
+                <div id="settingTip">Turn off lines to publishers to get a clear view of the topic or heatmap view
+                </div>
+            </span><br>
+            <input type="checkbox" name="hetmap" checked onchange="toggleHeatmap()">
+            <span class = "settingOption">Heatmap of all topics
+                <div id="settingTip">Turn off heatmap to get a clear view of the topic or publisher view
+                </div>
+            </span><br>
         </div>
         <div class="inputcontainer">
             Topic: <input type="number" id="topicInput" value="1" min="1" style="width:40px">
@@ -67,17 +130,23 @@
             <button id="next" onclick="next()">Next</button>
         </div>
         <div class="sectiontitle">Geocoded Titles
-            <span class="tooltip">Geocoded Titles are place names mentioned in a particular topic, represented by the red circles <img src="dataPoint.gif" width="20px" top> on the map. Click on a title on the <div id="tooltipSideBar" onmouseover="highLight()" onmouseout="highLightOff()">sidebar</div> to see the location on map. Click again to hide location.</span>
+            <span class="tooltip">These are place names mentioned in the selected topic, with the number of times mentioned shown in the "()". They are represented by the red circles <img src="images/dataPoint.gif" width="20px" top> on the map. Click on a title below to show the exact location on map. Click again to hide location.</span>
             <div id='total'></div>
           </div>
-        <div id="window1">
+        <div id="window1" class="scrollbar">
             <ul id= "wikititles" class="wikititles"></ul>
         </div>
-        <div width="100%" height="5%"></div>
-        <div class="sectiontitle">Topic Keywords
-            <span class="tooltip">Topic Keywords are shown below to describe the content of each topic. </span>
+        <div class="sectiontitle">Publishers
+            <span class="tooltip">These are publishers that wrote about the selected topic, with numbers of articles from each publisher shown in the "()". They are represented by the white circles <img src="images/publisherPoint.gif" width="20px" top> on the map. Click on a title below to show the exact location on map. Click again to hide location.</span>
+            <div id="deselectPublishers">&times;</div>
         </div>
-        <div id="window2">
+        <div id="window2" class="scrollbar">
+            <ul id= "publishers" class="publishers"></ul>
+        </div>
+        <div class="sectiontitle">Topic Keywords
+            <span class="tooltip">Topic Keywords are shown below to describe the cluster of words representative of selected topic. </span>
+        </div>
+        <div id="window3" class="scrollbar">
             <ul id= "keyWords" class="wikititles"></ul>
         </div>
     </div>

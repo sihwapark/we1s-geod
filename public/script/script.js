@@ -1116,7 +1116,7 @@ function initMap(){
     legend.id = 'legend'
     var div = document.createElement('div');
     // div.innerHTML = '<img src="heatmap.gif"> <div class="tooltip">All Topics<div class="tooltipText">Some Tip</div></div><br><br><img src="dataPoint.gif">Title Points';
-    div.innerHTML = '<img src="' + imageFolder + 'heatmap.gif"> All Topics<br><br><img src="' + imageFolder + 'dataPoint.gif">Title Points';
+    div.innerHTML = '<img src="' + imageFolder + 'heatmap.gif">All Topics\' Title Heatmap<br><img src="' + imageFolder + 'dataPoint.gif">Title Points<br><img src="' + imageFolder + 'publisherPoint.gif">Publisher Points';
     legend.appendChild(div);
     map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(legend);
 

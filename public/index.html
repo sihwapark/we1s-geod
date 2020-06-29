@@ -102,10 +102,26 @@
         </div>
         <div id="settingWindow">
             <span id='close-setting' class="close">&times;</span>
-            <input type="checkbox" name="radius" checked onchange="toggleRadius()">Weighted radius <br>
-            <input type="checkbox" name="topic" checked onchange="toggleCircles()">Circles of a topic<br>
-            <input type="checkbox" name="line" checked onchange="toggleLines()">Lines to publishers<br>
-            <input type="checkbox" name="hetmap" checked onchange="toggleHeatmap()">Heatmap of all topics<br>
+            <input type="checkbox" name="radius" checked onchange="toggleRadius()">
+            <span class = "settingOption">Weighted Radius
+                <div id="settingTip">Weighted Radius allows the size of the circles to represent the weight of the title selected. Turning off weighted radius removes the overlapping of circles due to size differences, enabling clearer viewing of locations on the map.
+                </div>
+            </span><br>
+            <input type="checkbox" name="topic" checked onchange="toggleCircles()">
+            <span class = "settingOption">Topic Circles
+                <div id="settingTip">Turn off topic circles to get a clear view of the publisher or heatmap view
+                </div>
+            </span><br>
+            <input type="checkbox" name="line" checked onchange="toggleLines()">
+            <span class = "settingOption">Lines to publishers
+                <div id="settingTip">Turn off lines to publishers to get a clear view of the topic or heatmap view
+                </div>
+            </span><br>
+            <input type="checkbox" name="hetmap" checked onchange="toggleHeatmap()">
+            <span class = "settingOption">Heatmap of all topics
+                <div id="settingTip">Turn off heatmap to get a clear view of the topic or publisher view
+                </div>
+            </span><br>
         </div>
         <div class="inputcontainer">
             Topic: <input type="number" id="topicInput" value="1" min="1" style="width:40px">
@@ -114,8 +130,8 @@
             <button id="next" onclick="next()">Next</button>
         </div>
         <div class="sectiontitle">Geocoded Titles
-            <span class="tooltip">Geocoded Titles are place names mentioned in a particular topic, represented by the red circles <img src="images/dataPoint.gif" width="20px" top> on the map. Click on a title on the <div id="tooltipSideBar" onmouseover="highLight()" onmouseout="highLightOff()">sidebar</div> to see the location on map. Click again to hide location.</span>
-            <div id="total"></div>
+            <span class="tooltip">These are place names mentioned in the selected topic, with the number of times mentioned shown in the "()". They are represented by the red circles <img src="images/dataPoint.gif" width="20px" top> on the map. Click on a title below to show the exact location on map. Click again to hide location.</span>
+            <div id='total'></div>
             <div id="deselectTitles" class="deselect">&times;</div>
           </div>
         <div id="window1" class="scrollbar">
@@ -129,14 +145,14 @@
               </select>
             </div>
             Publishers
-            <span class="tooltip">Publishers are publisher names represented by the white circles. </span>
+            <span class="tooltip">These are publishers that wrote about the selected topic, with numbers of articles from each publisher shown in the "()". They are represented by the white circles <img src="images/publisherPoint.gif" width="20px" top> on the map. Click on a title below to show the exact location on map. Click again to hide location.</span>
             <div id="deselectPublishers" class="deselect">&times;</div>
         </div>
         <div id="window2" class="scrollbar">
             <ul id= "publishers" class="publishers"></ul>
         </div>
         <div class="sectiontitle">Topic Keywords
-            <span class="tooltip">Topic Keywords are shown below to describe the content of each topic. </span>
+            <span class="tooltip">Topic Keywords are shown below to describe the cluster of words representative of selected topic. </span>
         </div>
         <div id="window3" class="scrollbar">
             <ul id= "keyWords" class="wikititles"></ul>

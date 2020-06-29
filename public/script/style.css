@@ -129,15 +129,32 @@ body {
     display: none;
 }
 
-#tooltipSideBar{
-    text-underline-position: below;
-    margin-left: 1px;
-    margin-right: 1px;
+.settingOption:hover{
+    cursor: help;
+} 
+
+.settingOption #settingTip {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s;
+    width: calc(270px - 30px);
+    /* background-color: #023e58; */
+    color: #fff;
+    background-color: #696969;
+    text-align: left;
+    z-index: 1;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    padding: 10px;
+    float:right;
+    position: absolute;
+    left: 50%; 
 }
 
-#tooltipSideBar:hover{
-    color: yellow;
-}
+.settingOption:hover #settingTip{
+    visibility: visible;
+    opacity: 1;
+} 
 
 .inputcontainer {
   width: 100%;
@@ -266,26 +283,33 @@ body {
   
 .sectiontitle .tooltip {
     visibility: hidden;
-    width: calc(270px - 50px);
-    background-color: #555;
+    width: calc(270px - 30px);
+    /* background-color: #023e58; */
     color: #fff;
-    text-align: center;
+    text-align: left;
     z-index: 1;
-    border-radius: 6px;
-    padding: 5px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    padding: 10px;
     float:right;
     position: absolute;
     left: -80%;
-    bottom: -25%; 
-    margin-left: -60px;
+    top: 30%;
+    /* bottom: -15%;  */
+    margin-left: -70px;
     opacity: 0;
     transition: opacity 0.3s;
+}
+
+.sectiontitle:hover{
+    color: rgb(255, 253, 234);
+    cursor: help;
 }
 
 .sectiontitle:hover .tooltip {
     visibility: visible;
     opacity: 1;
-    background-color: darkgrey;
+    background-color: #696969;
 }
 
 .wikititles {
@@ -356,7 +380,7 @@ body {
     top: 9px;
     right: 0;
     font-size: 20px;
-   toggleLineFromPublisher
+    visibility: hidden;
 }
 
 .deselect:hover {

@@ -189,6 +189,7 @@ function addDataLayerForTopic(num) {
     });
 
     var pubList = [];
+    var zoomLevel = map.getZoom();
     for (var j = 0; j < topic.Wikidata.length; j++) {
         var name = topic.Wikidata[j].Title;
         var count = Number(topic.Wikidata[j].Count);
@@ -196,7 +197,7 @@ function addDataLayerForTopic(num) {
         if (topic.Wikidata[j].coord !== null) {
             var lat = topic.Wikidata[j].coord[0];
             var lon = topic.Wikidata[j].coord[1];
-            var radius = unitCirclesize * count + minCirclesize;
+            var radius = scaleRadiusForZoom(zoomLevel, count);
 
             addDataPointCircle(lat, lon, clr, strk_opct, fill_opct, radius, name, num, count, maxCount);
             
@@ -229,7 +230,8 @@ function addDataLayerForTopic(num) {
                         
                         publishers[uniqueID] = {id: uniqueID, name: pubName, coord: coord, counts:[], polylines:[]};
                         publishers[uniqueID].counts[num] = linecount;
-                        addPublisherCircle(num, uniqueID, pubName, coord);
+                        var radius = scaleRadiusForZoom(zoomLevel, 0);
+                        addPublisherCircle(num, uniqueID, pubName, coord, radius);
 
                         pubList.push(publishers[uniqueID]);
                     } else {    
@@ -678,7 +680,7 @@ function loadData() {
         });
 }
 
-function addPublisherCircle(topicNum, pubID, name, coord) {
+function addPublisherCircle(topicNum, pubID, name, coord, radius) {
 
     var circle = new google.maps.Circle({
         strokeColor: 'white',
@@ -689,7 +691,7 @@ function addPublisherCircle(topicNum, pubID, name, coord) {
         map: map,
         center: coord,
         // zIndex: 9999 - 9999 * count / maxCount,
-        radius: minCirclesize * 2
+        radius: radius
     });
 
     var infoWindow = new google.maps.InfoWindow({
@@ -933,6 +935,8 @@ function drawagain(selectedTopic) {
                 lineToPub.publisher.circle.setVisible(true);
             })
         }
+
+        resizeCirclesForZoom(true);
     }
 
     document.getElementById("wikititles").innerHTML = listWiki[selectedTopic];
@@ -945,7 +949,7 @@ function drawagain(selectedTopic) {
 function resizeCirclesForZoom(force = false) {
     var zoomLevel = map.getZoom();
 
-    if(force == false && zoomLevel < 5) return;
+    if(force == false && zoomLevel < 7) return;
 
     var mapBound = map.getBounds();
     if(typeof cityArray[lastTopic] != 'undefined') {
@@ -961,6 +965,21 @@ function resizeCirclesForZoom(force = false) {
                 cityCircle.setRadius(scaleRadiusForZoom(zoomLevel, count));
                 cityCircle.zoomLevel = zoomLevel;
             }
+
+            var pubIDs = cityArray[lastTopic][i].publisherID;
+
+            pubIDs.forEach(function(pubID) {
+                var pubCircle = publishers[pubID].circle;
+                var pubCircleBound = pubCircle.getBounds();
+
+                if((mapBound.contains(pubCircle.center)) 
+                    || (mapBound.intersects(pubCircleBound))
+                    && (force || (pubCircle.zoomLevel != zoomLevel))) {
+
+                    pubCircle.setRadius(scaleRadiusForZoom(zoomLevel, 0));
+                    pubCircle.zoomLevel = zoomLevel;
+                }
+            });
         }
     }
 }
@@ -968,11 +987,10 @@ function resizeCirclesForZoom(force = false) {
 function scaleRadiusForZoom(zoomLevel, count) {
     var radius = unitCirclesize * count + minCirclesize;
 
-    if(zoomLevel > 6) {
-        var ratio = (zoomLevel - 5) / 6;
-        var scaleFactor = Math.cos(0.5 * Math.PI * ratio);
-        if(scaleFactor <= 0.05) scaleFactor = 0.05;
-
+    if(zoomLevel >= 7) {
+        var x = ((zoomLevel - 7) / 13) * 7;
+        x = Math.min(x, 7);
+        var scaleFactor = 1 / Math.exp(x);
         radius *= scaleFactor;
     }
     

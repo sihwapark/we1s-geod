@@ -242,6 +242,7 @@ function addDataLayerForTopic(num) {
                             pubList.push(publishers[uniqueID]);
                         }
 
+                        publishers[uniqueID].circle.setVisible(lineVisible);
                         // console.log(publishers[uniqueID]);
                     }
 
@@ -935,10 +936,10 @@ function drawagain(selectedTopic) {
                 lineToPub.publisher.circle.setVisible(true);
             })
         }
-
-        resizeCirclesForZoom(true);
     }
 
+    resizeCirclesForZoom(true);
+    
     document.getElementById("wikititles").innerHTML = listWiki[selectedTopic];
     document.getElementById("publishers").innerHTML = listPublisher[selectedTopic];
     document.getElementById("keyWords").innerHTML = listKey[selectedTopic];
@@ -1106,7 +1107,7 @@ function initMap(){
         zoom: 3
     });
     
-    CustomPopup = createCustomPopupClass();
+    // CustomPopup = createCustomPopupClass();
 
     $.ajax({
       dataType: "json",

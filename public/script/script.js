@@ -1,13 +1,13 @@
 var map;
 var cityArray = [];
 var keyArray = [];
-var listWiki = ["",];
+var listWiki = ['',];
 var listPublisher = [];
 var listKey = [];
 var lastTopic = -1;
 var jsonData;
 var totalData = 0;
-var clr = "#ff9999";
+var clr = '#ff9999';
 var strk_opct = 0.4;
 var fill_opct = 0.4;
 var minCirclesize = 9500;
@@ -25,11 +25,9 @@ var maxStrokeWeight = 9;
 var selectedPublishers = [];
 var selectedTitles = [];
 
-var CustomPopup;
-
 var params = {};
-var dataFolder = "" // if it is using node.js version, it should be "" otherwise "data/"
-var imageFolder = "" // if it is using node.js version, it should be "" otherwise "images/"
+var dataFolder = '' // if it is using node.js version, it should be '' otherwise 'data/'
+var imageFolder = '' // if it is using node.js version, it should be '' otherwise 'images/'
 
 // heatmap color scheme based on: http://colorbrewer2.org/?type=sequential&scheme=YlGn&n=9
 var heatmapGradient = ['rgba(173,221,142,0)','rgb(120,198,121)','rgb(65,171,93)','rgb(35,132,67)','rgb(0,104,55)','rgb(0,69,41)'];
@@ -57,9 +55,9 @@ publishers.changeLinesColor = function(pubID, topicNum, color, opacity, cityInde
 };
 
 function initInput() {
-    var input = document.getElementById("topicInput");
+    var input = document.getElementById('topicInput');
 
-    input.addEventListener("keyup", function(event) {
+    input.addEventListener('keyup', function(event) {
         if (event.keyCode === 13) {
             event.preventDefault();
             submit();
@@ -70,7 +68,7 @@ function initInput() {
 function previous() {
     if(lastTopic > 1) {
         
-        var input = document.getElementById("topicInput");
+        var input = document.getElementById('topicInput');
         input.value = lastTopic - 1;
 
         drawagain(lastTopic - 1);
@@ -80,7 +78,7 @@ function previous() {
 function next() {
     if(lastTopic <= jsonData.Topics.length - 1) {
         
-        var input = document.getElementById("topicInput");
+        var input = document.getElementById('topicInput');
         input.value = lastTopic + 1;
 
         drawagain(lastTopic + 1);
@@ -88,7 +86,7 @@ function next() {
 }
 
 function submit() {
-    var topicInput = document.getElementById("topicInput").value;
+    var topicInput = document.getElementById('topicInput').value;
     drawagain(topicInput);
 }
 
@@ -101,7 +99,7 @@ function toggleCircles() {
 
     if(typeof cityArray[lastTopic] != 'undefined') {
         circleVisible = !circleVisible;
-        for (var i = 0; i < cityArray[lastTopic].length; i++) {
+        for(var i = 0; i < cityArray[lastTopic].length; i++) {
             var cityCircle = cityArray[lastTopic][i].circle;
             cityCircle.setVisible(circleVisible);
         }
@@ -129,16 +127,16 @@ function toggleHeatmap() {
 function getDataPointsForAllTopics() {
     heatmapDataPoints = [];
     
-    for (var i = 0; i < jsonData.Topics.length; i++) {
+    for(var i = 0; i < jsonData.Topics.length; i++) {
         totalData += jsonData.Topics[i].Wikidata.length;
     }
 
     var dataProccessed = 0;
     //var bounds = new google.maps.LatLngBounds();
-    for (var i = 0; i < jsonData.Topics.length; i++) {
+    for(var i = 0; i < jsonData.Topics.length; i++) {
         var topicNum = i + 1;
 
-        for (var j = 0; j < jsonData.Topics[i].Wikidata.length; j++){
+        for(var j = 0; j < jsonData.Topics[i].Wikidata.length; j++) {
             var count = Number(jsonData.Topics[i].Wikidata[j].Count);
             
             if (jsonData.Topics[i].Wikidata[j].coord !== null) {
@@ -166,9 +164,9 @@ function getDataPointsForAllTopics() {
 
 function addDataLayerForTopic(num) {
 
-    var wiki = "";
-    var pub = "";
-    var keyWord = "";
+    var wiki = '';
+    var pub = '';
+    var keyWord = '';
     cityArray[num] = [];
     var maxCount = -1;
     
@@ -177,7 +175,7 @@ function addDataLayerForTopic(num) {
                             })[0];
     var polylines = [];
 
-    for (var j = 0; j < topic.Wikidata.length; j++) {
+    for(var j = 0; j < topic.Wikidata.length; j++) {
         var count = Number(topic.Wikidata[j].Count);
         if (topic.Wikidata[j].coord !== null) {
             if(maxCount < count) maxCount = count;
@@ -190,7 +188,7 @@ function addDataLayerForTopic(num) {
 
     var pubList = [];
     var zoomLevel = map.getZoom();
-    for (var j = 0; j < topic.Wikidata.length; j++) {
+    for(var j = 0; j < topic.Wikidata.length; j++) {
         var name = topic.Wikidata[j].Title;
         var count = Number(topic.Wikidata[j].Count);
 
@@ -311,16 +309,14 @@ function addDataLayerForTopic(num) {
 
     linesToPublishers[num] = polylines;
     
-    for (var i = 0; i < 20; i++){
-        keyWord += "<li>" + keyArray[num - 1][i]+ "</li>";
+    for(var i = 0; i < 20; i++) {
+        keyWord += '<li>' + keyArray[num - 1][i]+ '</li>';
     }
 
     pubList.sort(function(pubA, pubB) { return pubB.counts[num] - pubA.counts[num]});
 
     pubList.forEach(function(p) {
         pub += "<li class='item' id='" + p.id + "' onclick=\"clickForPublisher(" + num + ", this)\">" + p.name + " (" + p.counts[num] + ") </li>";
-
-        // wiki += "<li class='item' id=" + num + "-" + indexOfCircle + " onclick='clickForTitle("+num+","+indexOfCircle + ", this)'>" + name + " ("+ count + ")</li>";
     });
 
     listKey[num] = keyWord;
@@ -399,7 +395,7 @@ function deselectAllTitles() {
         makeAllLinesGradient(lastTopic);
         toggleSearchFilter(false);
     } else {
-        selectedPublishers.forEach(function(pub){
+        selectedPublishers.forEach(function(pub) {
             publishers.makeGradientSelected(pub.id, lastTopic);
         });    
     }
@@ -535,7 +531,7 @@ function toggleLineFromTitle(topicNum, titleID, publisherID, element) {
             });
         } else {
             if(isUinonSearch) { // Union operation with selectedPublishers
-                selectedPublishers.forEach(function(pub){
+                selectedPublishers.forEach(function(pub) {
                     publishers.makeGradientSelected(pub.id, topicNum);
                 });
             }
@@ -565,7 +561,7 @@ function toggleLineFromTitle(topicNum, titleID, publisherID, element) {
                     }); 
                 }
 
-                selectedPublishers.forEach(function(pub){
+                selectedPublishers.forEach(function(pub) {
                     publishers.makeGradientSelected(pub.id, topicNum);
                 });    
             }
@@ -579,7 +575,7 @@ function toggleLineFromTitle(topicNum, titleID, publisherID, element) {
             });
 
             if(isUinonSearch) { // Union operation with selectedTitles
-                selectedPublishers.forEach(function(pub){
+                selectedPublishers.forEach(function(pub) {
                     publishers.makeGradientSelected(pub.id, topicNum);
                 });  
             }
@@ -591,7 +587,7 @@ function redrawLines() {
     changeAllLinesColor(lastTopic, 'rgb(0, 0, 0)', 0.1);
 
     if(isUinonSearch) {
-        selectedPublishers.forEach(function(pub){
+        selectedPublishers.forEach(function(pub) {
             publishers.makeGradientSelected(pub.id, lastTopic);
         });
 
@@ -602,7 +598,7 @@ function redrawLines() {
         });
     } else {
         if(selectedTitles.length == 0) { // if no title is selected
-            selectedPublishers.forEach(function(pub){
+            selectedPublishers.forEach(function(pub) {
                 publishers.makeGradientSelected(pub.id, lastTopic);
             });
         } else if(selectedPublishers.length == 0) {
@@ -612,7 +608,7 @@ function redrawLines() {
                 });
             });
         } else {
-            selectedPublishers.forEach(function(pub){
+            selectedPublishers.forEach(function(pub) {
                 publishers[pub.id].polylines[lastTopic].forEach(function(polylines) {
                     let found = selectedTitles.find(function(title) { return polylines.cityIndex == title.id; });
                     if(typeof found != 'undefined') {
@@ -643,29 +639,56 @@ function loadData() {
         .then((data) => {
             var txtData = data;
 
-            var keyTopic = txtData.trim().split("\n");
-            for (var i = 0; i < keyTopic.length; i++){
-                var keywordString = keyTopic[i].split("\t")[2];
-                var keywords = keywordString.trim().split(" ");
+            var keyTopic = txtData.trim().split('\n');
+            for(var i = 0; i < keyTopic.length; i++) {
+                var keywordString = keyTopic[i].split('\t')[2];
+                var keywords = keywordString.trim().split(' ');
                 keyArray.push(keywords);
             }
             
-            fetch(dataFolder +"Map_Items_Topic_Lines.json")
-                .then(function (data){
+            fetch(dataFolder + 'config.json')
+                .then(function(data) {
                     data.json()
-                        .then(function (data) {
-                            jsonData = data;
+                        .then(function(config) {
+                            if(typeof config['title'] != 'undefined' || config['title'] != '')
+                                document.getElementById('title').innerHTML = config['title'];
+
+                            // add extra links to the info window if urls exist
+                            let extra_links = config.extra_links;
+                            
+                            if(typeof extra_links != 'undefined' && extra_links.length > 0) {
+                                var misc = document.getElementById('misc');
+
+                                var linksHTML = '<ul>';
+                                extra_links.forEach(function(link_info) {
+                                    let name = Object.keys(link_info)[0];
+                                    let url = link_info[name];
+                                    linksHTML += '<li><a href=' + url + ' target=\'_blank\'>' + name + '</a></li>';
+                                });
+                                linksHTML += '</ul>';
+
+                                misc.innerHTML = misc.innerHTML + linksHTML + '</p>';
+                                $(misc).toggleClass('hidden');
+                            }
+                        });
+                });
+
+            fetch(dataFolder +'Map_Items_Topic_Lines.json')
+                .then(function(data) {
+                    data.json()
+                        .then(function(dataDecoded) {
+                            jsonData = dataDecoded;
 
                             var topicNum = 1;
-                            if(typeof params["topicNum"] != 'undefined') topicNum = parseInt(params["topicNum"]);
+                            if(typeof params['topicNum'] != 'undefined') topicNum = parseInt(params['topicNum']);
 
                             addDataLayerForTopic(topicNum);      
-                            document.getElementById("wikititles").innerHTML = listWiki[topicNum];
-                            document.getElementById("publishers").innerHTML = listPublisher[topicNum];
-                            document.getElementById("keyWords").innerHTML = listKey[topicNum];
-                            document.getElementById("total").innerHTML = "(Total: " + cityArray[topicNum].length + ")";
+                            document.getElementById('wikititles').innerHTML = listWiki[topicNum];
+                            document.getElementById('publishers').innerHTML = listPublisher[topicNum];
+                            document.getElementById('keyWords').innerHTML = listKey[topicNum];
+                            document.getElementById('total').innerHTML = '(Total: ' + cityArray[topicNum].length + ')';
                             lastTopic = topicNum;
-                            document.getElementById("topicInput").value = topicNum;
+                            document.getElementById('topicInput').value = topicNum;
                             getDataPointsForAllTopics();
 
                             heatmap = new google.maps.visualization.HeatmapLayer({
@@ -696,7 +719,7 @@ function addPublisherCircle(topicNum, pubID, name, coord, radius) {
     });
 
     var infoWindow = new google.maps.InfoWindow({
-        content: "<h3> Publisher: " + name + "</h3>"
+        content: '<h3> Publisher: ' + name + '</h3>'
     });
 
     var marker = new google.maps.Marker({
@@ -731,7 +754,7 @@ function addPublisherCircle(topicNum, pubID, name, coord, radius) {
     // circle.weightedRadius = radius;
     circle.zoomLevel = map.getZoom();
 
-    circle.addListener('mouseover', function () {
+    circle.addListener('mouseover', function() {
         if(circle.infoWindowStaying) return;
 
         marker.setVisible(true);
@@ -751,7 +774,7 @@ function addPublisherCircle(topicNum, pubID, name, coord, radius) {
         $(e).toggleClass('item-active');
     });
 
-    circle.addListener('mouseout', function (event) {
+    circle.addListener('mouseout', function(event) {
         if(circle.infoWindowStaying) return;
         marker.setVisible(false);
         infoWindow.close();
@@ -763,7 +786,7 @@ function addPublisherCircle(topicNum, pubID, name, coord, radius) {
         $(e).toggleClass('item-active');
     });
 
-    circle.addListener('click', function () {
+    circle.addListener('click', function() {
         circle.infoWindowStaying = !circle.infoWindowStaying;
         var e = document.getElementById(pubID);
         toggleLineFromPublisher(topicNum, pubID, e);
@@ -780,23 +803,13 @@ function addDataPointCircle(lat, lon, clr, strk_opct, fill_opct, radius, name, t
         lat:lat,
         lng:lon};
     var contentString =
-        "<h3>" + name + " (count: " + count + "), Topic " + topicNum + "</h3>";
+        '<h3>' + name + ' (count: ' + count + '), Topic ' + topicNum + '</h3>';
     
     var circleIndex = cityArray[topicNum].length;
 
     var infoWindow = new google.maps.InfoWindow({
         content: contentString
     });
-
-    // <div id="content">
-    //   Hello world!
-    // </div>
-    // var div = document.createElement('div');
-    // var div.innerHTML = contentString;
-    // var infoWindow = new CustomPopup(
-    //   new google.maps.LatLng(-33.866, 151.196),
-    //   div);
-    // infoWindow.setMap(map);
 
     var marker = new google.maps.Marker({
         position: coord,
@@ -814,7 +827,7 @@ function addDataPointCircle(lat, lon, clr, strk_opct, fill_opct, radius, name, t
         marker.setVisible(false);
         cityCircle.setOptions({strokeOpacity: strk_opct});
         infoWindow.setZIndex(0);
-        var id= topicNum + "-" + circleIndex;
+        var id= topicNum + '-' + circleIndex;
         var e = document.getElementById(id);
         $(e).toggleClass('item');
         $(e).toggleClass('item-active');
@@ -843,8 +856,8 @@ function addDataPointCircle(lat, lon, clr, strk_opct, fill_opct, radius, name, t
     cityCircle.setMap(map);
     cityCircle.setVisible(circleVisible);
 
-    cityCircle.addListener('mouseover', function () {
-        var id= topicNum + "-" + circleIndex;
+    cityCircle.addListener('mouseover', function() {
+        var id= topicNum + '-' + circleIndex;
         document.getElementById(id).scrollIntoView();
 
         if(cityCircle.infoWindowStaying) return;
@@ -864,22 +877,22 @@ function addDataPointCircle(lat, lon, clr, strk_opct, fill_opct, radius, name, t
         $(e).toggleClass('item-active');
     });
 
-    cityCircle.addListener('mouseout', function (event) {
+    cityCircle.addListener('mouseout', function(event) {
         if(cityCircle.infoWindowStaying) return;
         marker.setVisible(false);
         infoWindow.close();
         cityCircle.setOptions({strokeOpacity: strk_opct});
         infoWindow.setZIndex(0);
 
-        var id= topicNum + "-" + circleIndex;
+        var id= topicNum + '-' + circleIndex;
         var e = document.getElementById(id);
         $(e).toggleClass('item');
         $(e).toggleClass('item-active');
     });
 
-    cityCircle.addListener('click', function () {
+    cityCircle.addListener('click', function() {
         cityCircle.infoWindowStaying = !cityCircle.infoWindowStaying;
-        var id= topicNum + "-" + circleIndex;
+        var id= topicNum + '-' + circleIndex;
         var e = document.getElementById(id);
         toggleLineFromTitle(topicNum, circleIndex, cityArray[topicNum][circleIndex].publisherID, e);
     });
@@ -940,10 +953,10 @@ function drawagain(selectedTopic) {
 
     resizeCirclesForZoom(true);
     
-    document.getElementById("wikititles").innerHTML = listWiki[selectedTopic];
-    document.getElementById("publishers").innerHTML = listPublisher[selectedTopic];
-    document.getElementById("keyWords").innerHTML = listKey[selectedTopic];
-    document.getElementById("total").innerHTML = "(Total: " + cityArray[selectedTopic].length + ")";
+    document.getElementById('wikititles').innerHTML = listWiki[selectedTopic];
+    document.getElementById('publishers').innerHTML = listPublisher[selectedTopic];
+    document.getElementById('keyWords').innerHTML = listKey[selectedTopic];
+    document.getElementById('total').innerHTML = '(Total: ' + cityArray[selectedTopic].length + ')';
     lastTopic = selectedTopic;
 }
 
@@ -954,7 +967,7 @@ function resizeCirclesForZoom(force = false) {
 
     var mapBound = map.getBounds();
     if(typeof cityArray[lastTopic] != 'undefined') {
-        for (var i = 0; i < cityArray[lastTopic].length; i++) {
+        for(var i = 0; i < cityArray[lastTopic].length; i++) {
             var cityCircle = cityArray[lastTopic][i].circle;
             var circleBound = cityCircle.getBounds();
 
@@ -1019,7 +1032,7 @@ function saveMapToImage(topicNum, mapOnly = true, w, h, xOffset, yOffset) {
     }
 
     var wait = (lastTopic == topicNum)? 1 : 500;
-    document.getElementById("topicInput").value = topicNum;
+    document.getElementById('topicInput').value = topicNum;
     drawagain(topicNum);
 
     setTimeout(function() {
@@ -1080,15 +1093,15 @@ function downloadImage(URL, filename) {
     }
 }
 
-function highLight(){
-    document.getElementById("window1").style.borderColor = "yellow";
+function highLight() {
+    document.getElementById('window1').style.borderColor = 'yellow';
 }
 
-function highLightOff(){
-    document.getElementById("window1").style.borderColor = "#023e58";
+function highLightOff() {
+    document.getElementById('window1').style.borderColor = '#023e58';
 }
 
-function initMap(){
+function initMap() {
 
     params = getParams(window.location.href);
 
@@ -1107,11 +1120,9 @@ function initMap(){
         zoom: 3
     });
     
-    // CustomPopup = createCustomPopupClass();
-
     $.ajax({
-      dataType: "json",
-      url: dataFolder + "map_style.json",
+      dataType: 'json',
+      url: dataFolder + 'map_style.json',
       success: function(json) {
         var mapType = new google.maps.StyledMapType(json['settings'], {name: 'Styled Map'});
         
@@ -1139,38 +1150,38 @@ function initMap(){
     legend.appendChild(div);
     map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(legend);
 
-    var modal = document.getElementById("infoModal");
-    var settingWindow = document.getElementById("settingWindow");
+    var modal = document.getElementById('infoModal');
+    var settingWindow = document.getElementById('settingWindow');
 
-    var info = document.getElementById("info");
-    var setting = document.getElementById("setting");
+    var info = document.getElementById('info');
+    var setting = document.getElementById('setting');
 
-    var closeSetting = document.getElementById("close-setting");
-    var closeModal = document.getElementById("close-modal");
+    var closeSetting = document.getElementById('close-setting');
+    var closeModal = document.getElementById('close-modal');
 
     let filter = document.getElementById('searchOption');
 
     info.onclick = function() {
-        modal.style.display = "block";
+        modal.style.display = 'block';
     }
 
     setting.onclick = function() {
-        settingWindow.style.display = "block";
-        document.getElementById("windows").className = "active";
+        settingWindow.style.display = 'block';
+        document.getElementById('windows').className = 'active';
     }
 
     closeModal.onclick = function() {
-        modal.style.display = "none";
+        modal.style.display = 'none';
     }
 
     closeSetting.onclick = function() {
-        settingWindow.style.display = "none";
-        document.getElementById("windows").className = "";
+        settingWindow.style.display = 'none';
+        document.getElementById('windows').className = '';
     }
 
     window.onclick = function(event) {
         if (event.target == modal) {
-            modal.style.display = "none";
+            modal.style.display = 'none';
         }
     }
 
@@ -1189,75 +1200,4 @@ function initMap(){
 
     document.getElementById('deselectPublishers').onclick = deselectAllPublishers;
     document.getElementById('deselectTitles').onclick = deselectAllTitles;
-}
-
-/* CustomPopup code example from https://developers.google.com/maps/documentation/javascript/examples/overlay-popup */
-/**
- * Returns the Popup class.
- *
- * Unfortunately, the Popup class can only be defined after
- * google.maps.OverlayView is defined, when the Maps API is loaded.
- * This function should be called by initMap.
- */
-function createCustomPopupClass() {
-  /**
-   * A customized popup on the map.
-   * @param {!google.maps.LatLng} position
-   * @param {!Element} content The bubble div.
-   * @constructor
-   * @extends {google.maps.OverlayView}
-   */
-    function CustomPopup(position, content) {
-        this.position = position;
-
-        content.classList.add('popup-bubble');
-
-        // This zero-height div is positioned at the bottom of the bubble.
-        var bubbleAnchor = document.createElement('div');
-        bubbleAnchor.classList.add('popup-bubble-anchor');
-        bubbleAnchor.appendChild(content);
-
-        // This zero-height div is positioned at the bottom of the tip.
-        this.containerDiv = document.createElement('div');
-        this.containerDiv.classList.add('popup-container');
-        this.containerDiv.appendChild(bubbleAnchor);
-
-        // Optionally stop clicks, etc., from bubbling up to the map.
-        google.maps.OverlayView.preventMapHitsAndGesturesFrom(this.containerDiv);
-    }
-    // ES5 magic to extend google.maps.OverlayView.
-    CustomPopup.prototype = Object.create(google.maps.OverlayView.prototype);
-
-    /** Called when the popup is added to the map. */
-    CustomPopup.prototype.onAdd = function() {
-        this.getPanes().floatPane.appendChild(this.containerDiv);
-    };
-
-    /** Called when the popup is removed from the map. */
-    CustomPopup.prototype.onRemove = function() {
-        if (this.containerDiv.parentElement) {
-            this.containerDiv.parentElement.removeChild(this.containerDiv);
-        }
-    };
-
-    /** Called each frame when the popup needs to draw itself. */
-    CustomPopup.prototype.draw = function() {
-        var divPosition = this.getProjection().fromLatLngToDivPixel(this.position);
-
-        // Hide the popup when it is far out of view.
-        var display =
-        Math.abs(divPosition.x) < 4000 && Math.abs(divPosition.y) < 4000 ?
-        'block' :
-        'none';
-
-        if (display === 'block') {
-            this.containerDiv.style.left = divPosition.x + 'px';
-            this.containerDiv.style.top = divPosition.y + 'px';
-        }
-        if (this.containerDiv.style.display !== display) {
-            this.containerDiv.style.display = display;
-        }
-    };
-
-    return CustomPopup;
 }

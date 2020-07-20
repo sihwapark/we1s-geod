@@ -365,7 +365,7 @@ body {
 
 .filter {
     position: relative;
-    margin-right: 3px;
+    margin-right: 0px;
     top: 1px;
     visibility: hidden;
     width: 0;

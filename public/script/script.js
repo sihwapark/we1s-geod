@@ -425,9 +425,11 @@ function toggleSearchFilter(on) {
     if(on) {
         filter.style.width = '52px';
         filter.style.visibility = 'visible';
+        filter.style.marginRight = '10px';
     } else {
         filter.style.width = '0';
         filter.style.visibility = 'hidden';
+        filter.style.marginRight = '0px';
     }
 }
 

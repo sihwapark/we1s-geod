@@ -15,6 +15,7 @@
 </head>
 
 <body>
+    <div id="loading"></div>
     <div id="infoModal" class="modal">
     <!-- Modal content -->
         <div class="modal-content scrollbar">
@@ -108,18 +109,18 @@
                 </div>
             </span><br>
             <input type="checkbox" name="topic" checked onchange="toggleCircles()">
-            <span class = "settingOption">Topic Circles
-                <div id="settingTip">Turn off topic circles to get a clear view of the publisher or heatmap view
+            <span class = "settingOption">Title Points
+                <div id="settingTip">Turn off title points to get a clear view of the publisher or heatmap view
                 </div>
             </span><br>
             <input type="checkbox" name="line" checked onchange="toggleLines()">
-            <span class = "settingOption">Lines to publishers
-                <div id="settingTip">Turn off lines to publishers to get a clear view of the topic or heatmap view
+            <span class = "settingOption">Lines to Publishers
+                <div id="settingTip">Turn off lines to publishers to get a clear view of the titles/publisher or heatmap view
                 </div>
             </span><br>
             <input type="checkbox" name="hetmap" checked onchange="toggleHeatmap()">
-            <span class = "settingOption">Heatmap of all topics
-                <div id="settingTip">Turn off heatmap to get a clear view of the topic or publisher view
+            <span class = "settingOption">Heatmap of All Topics' Title
+                <div id="settingTip">Turn off heatmap to get a clear view of titles and publishers
                 </div>
             </span><br>
         </div>
@@ -130,15 +131,27 @@
             <button id="next" onclick="next()">Next</button>
         </div>
         <div class="sectiontitle">Geocoded Titles
-            <span class="tooltip">These are place names mentioned in the selected topic, with the number of times mentioned shown in the "()". They are represented by the red circles <img src="images/dataPoint.gif" width="20px" top> on the map. Click on a title below to show the exact location on map. Click again to hide location.</span>
+            <span class="tooltip">These are place names mentioned in the selected topic, with the number of times mentioned shown in the "()". They are represented by the red circles <img src="images/dataPoint.gif" width="20px" top> on the map. Click on a title below to show the exact location on map represented by the red drop pin. The publishers associated with this title are linked to the pined location with parabolic lines. Click on title again to hide location.</span>
             <div id='total'></div>
+            <div id="deselectTitles" class="deselect">&times;</div>
           </div>
         <div id="window1" class="scrollbar">
             <ul id= "wikititles" class="wikititles"></ul>
         </div>
-        <div class="sectiontitle">Publishers
-            <span class="tooltip">These are publishers that wrote about the selected topic, with numbers of articles from each publisher shown in the "()". They are represented by the white circles <img src="images/publisherPoint.gif" width="20px" top> on the map. Click on a title below to show the exact location on map. Click again to hide location.</span>
-            <div id="deselectPublishers">&times;</div>
+        <div class="sectiontitle">
+            <div id="searchFilter" class="filter">
+              <select id="searchOption">
+                <option value="0">AND</option>
+                <option value="1">OR</option>
+              </select>
+            </div>
+            Publishers
+            <span class="tooltip">These are publishers that wrote about the selected topic, with numbers of articles from each publisher shown in the "()". They are represented by the white circles <img src="images/publisherPoint.gif" width="20px" top> on the map. Click on a publisher below to show the exact location on map. The locations mentioned by the selected publisher are linked to the publisher point with parabolic lines. Click on the publisher again to hide location.
+            <br>
+            <br>
+            When one or more geocoded titles and publishers are selected, a dropdown menu with "AND" or "OR" options appears. "AND" option will only display the link between the selected title(s) and selected publisher(s). In other words, "AND" option = Geocoded title &cap; Publisher. "OR" option will display all relevant associations (parabolic lines) of the selected geocoded title(s) and publisher(s), including the one linking the selected title(s) and publisher(s). In other words, "OR" option = "Geocoded title &cup; Publisher". 
+            </span>
+            <div id="deselectPublishers" class="deselect">&times;</div>
         </div>
         <div id="window2" class="scrollbar">
             <ul id= "publishers" class="publishers"></ul>

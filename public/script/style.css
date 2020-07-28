@@ -181,15 +181,15 @@ body {
 } 
 
 .inputcontainer {
-  width: 100%;
-  height: 30px;
-  background:#696969;
-  color:#d3d3d3;
-  font-size:12pt;
-  border-style: 2px solid #696969;
-  border-radius: 5px;
-  display: block;
-  line-height: 30px;
+    width: 100%;
+    height: 30px;
+    background:#696969;
+    color:#d3d3d3;
+    font-size:12pt;
+    border-style: 2px solid #696969;
+    border-radius: 5px;
+    display: block;
+    line-height: 30px;
 }
 
 .inputcontainer button {
@@ -365,7 +365,7 @@ body {
 
 .filter {
     position: relative;
-    margin-right: 0px;
+    margin-right: 3px;
     top: 1px;
     visibility: hidden;
     width: 0;
@@ -434,5 +434,16 @@ body {
 }
 
 .hidden {
-  display: none;
+    display: none;
+}
+
+#loading {
+    background: url("../images/loader.gif") no-repeat center center;
+    background-size: 500px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 9999999;
 }

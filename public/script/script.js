@@ -54,6 +54,11 @@ publishers.changeLinesColor = function(pubID, topicNum, color, opacity, cityInde
     });
 };
 
+// Loader example from :https://stackoverflow.com/questions/22131821/how-can-i-display-a-loading-gif-until-an-entire-html-page-has-been-loaded/22131856
+function hideLoader() {
+    $('#loading').hide();
+}
+
 function initInput() {
     var input = document.getElementById('topicInput');
 
@@ -701,6 +706,9 @@ function loadData() {
                                 gradient: heatmapGradient,
                                 map: map
                             });
+
+                            // Hide loader after 10 seconds, even if the page hasn't finished loading
+                            setTimeout(hideLoader, 10 * 1000);
                         });
                 });
         });

@@ -1,5 +1,5 @@
 # WE1S GeoD
-
+This repostiroy is the original repository for WE1S GeoD, desigend and developed by Dan Baciu, Sihwa Park and Xindi Kang. Please refer the related article, [Dan Baciu, Cultural life: Theory and empirical testing](https://doi.org/10.1016/j.biosystems.2020.104208), for detail.
 
 
 ## How to Use
